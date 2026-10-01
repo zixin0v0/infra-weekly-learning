@@ -2,6 +2,8 @@
 
 [本周范围与验收](README.md) · [导学规则](../../docs/study-guide.md) · [当前做法与相关进展](context.md)
 
+详细备课：[第一段](session-01.md) · [第二段](session-02.md) · [第三段](session-03.md) · [2026-10-01 资料复核](refresh-2026-10-01.md)。先按备课单预测，再在本周同一实验目录核对；未来实际开课仍须重查资料。
+
 资料预算：45 + 60 + 45 = 150 分钟。延用 W2 的计时、W3 的检查与采样，只新增 GEMM 的数据复用问题。
 
 ## 1. 一个 warp 实际访问哪些地址（45 分钟）
@@ -26,7 +28,7 @@
 
 ## 3. 在计时之前预测性能限制（45 分钟）
 
-**先看/读**：[CS336 Lecture 2](https://www.youtube.com/watch?v=kuYAsz7zspQ) 配 [讲义](https://github.com/stanford-cs336/lectures/blob/main/lecture_02.py) 的 `arithmetic_intensity_matmul`、`roofline_plots`，约 15 分钟；硬件层次不清楚才补第 5 讲。
+**先看/读**：[CS336 Lecture 2](https://www.youtube.com/watch?v=kuYAsz7zspQ) 配 [讲义](https://github.com/stanford-cs336/lectures/blob/6ff836dd5dfcbe7e848fe1a1734f1886f1116a7a/lecture_02.py) 的 `arithmetic_intensity_matmul`、`roofline_plots`，约 15 分钟；硬件层次不清楚才补第 5 讲。
 
 **配合阅读**：[Scaling Book Part 1](https://jax-ml.github.io/scaling-book/roofline/) 的 `Visualizing rooflines` 和 `Matrix multiplication`。用本机与当前精度的数据代入，书中的其他硬件参数仅作示例。
 

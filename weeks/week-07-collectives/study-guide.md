@@ -2,13 +2,15 @@
 
 [本周范围与验收](README.md) · [导学规则](../../docs/study-guide.md) · [当前做法与相关进展](context.md)
 
+详细备课：[第一段](session-01.md) · [第二段](session-02.md) · [第三段](session-03.md) · [2026-10-01 资料复核](refresh-2026-10-01.md)。先按备课单预测，再在本周同一实验目录核对；未来实际开课仍须重查资料。
+
 资料预算：45 + 60 + 45 = 150 分钟，包含配置与拓扑记录的准备。主线 2 卡，4 卡另列扩展。
 
 ## 1. collective 是数据变换，不是一个黑盒命令（45 分钟）
 
 **先读**：[NCCL Collective Operations](https://docs.nvidia.com/deeplearning/nccl/user-guide/docs/usage/collectives.html) 的 `AllReduce`、`Broadcast`、`AllGather`、`ReduceScatter`，按每个 rank 的输入和输出画图。
 
-**联读/看**：[CS336 第 7 讲讲义](https://github.com/stanford-cs336/lectures/blob/main/lecture_07.py) 的 `torch_distributed`、`collective_operations_main`，视频使用 [2026 官方列表](https://www.youtube.com/playlist?list=PLoROMvodv4rMqXOcazWaTUHhq-yembLCV) 第 7 讲。只找 collective 示例，数据并行实现留到 W11。
+**联读/看**：[CS336 第 7 讲讲义](https://github.com/stanford-cs336/lectures/blob/de53a9f979a6ee35f7d13a5e1aadee5ea1afc58e/lecture_07.py) 的 `torch_distributed`、`collective_operations_main`，视频使用 [2026 官方列表](https://www.youtube.com/playlist?list=PLoROMvodv4rMqXOcazWaTUHhq-yembLCV) 第 7 讲。只找 collective 示例，数据并行实现留到 W11。
 
 **动手练习**：为 2 个 rank 各给一个小向量，先手算四类操作；将输出 shape、元素含义与 rank 顺序写成表。手算完成后再运行可用的最小通信示例。
 
@@ -16,7 +18,7 @@
 
 ## 2. nccl-tests 的三列数字各回答什么（60 分钟）
 
-**先读**：[nccl-tests README](https://github.com/NVIDIA/nccl-tests) 的构建与运行说明，再读 [doc/PERFORMANCE.md](https://github.com/NVIDIA/nccl-tests/blob/master/doc/PERFORMANCE.md) 的 `Time`、`Algorithm bandwidth`、`Bus bandwidth → AllReduce`。
+**先读**：[nccl-tests README](https://github.com/NVIDIA/nccl-tests/blob/b4d5beebca8a76cf01335f724d154b9b9d394d96/README.md) 的构建与运行说明，再读 [doc/PERFORMANCE.md](https://github.com/NVIDIA/nccl-tests/blob/b4d5beebca8a76cf01335f724d154b9b9d394d96/doc/PERFORMANCE.md) 的 `Time`、`Algorithm bandwidth`、`Bus bandwidth → AllReduce`。
 
 **接着想一想**：用第一段各 rank 的数据量推导计量口径。`busbw` 是按 collective 和 rank 数归一化后的指标，不是网卡或 PCIe 链路的直接采样值。
 

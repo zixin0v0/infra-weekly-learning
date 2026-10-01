@@ -2,11 +2,13 @@
 
 [本周范围与验收](README.md) · [导学规则](../../docs/study-guide.md) · [当前做法与相关进展](context.md)
 
+详细备课：[第一段](session-01.md) · [第二段](session-02.md) · [第三段](session-03.md) · [2026-10-01 资料复核](refresh-2026-10-01.md)。先按备课单预测，再在本周同一实验目录核对；未来实际开课仍须重查资料。
+
 资料预算：45 + 60 + 45 = 150 分钟。复用 W5 表达式或 W6 Block，固定形状前向先通过；这里是本仓库练习，不是 CS336 官方作业提交。
 
 ## 1. 编译前后是否仍计算相同结果（45 分钟）
 
-**先看/读**：[CS336 Lecture 6](https://www.youtube.com/watch?v=xnDHaNUvHBg) 配 [lecture_06.py](https://github.com/stanford-cs336/lectures/blob/main/lecture_06.py) 的 `naive_vs_builtin_vs_compiled_gelu`，约 15 分钟，只理解比较方式，不另加一个 GELU 项目。
+**先看/读**：[CS336 Lecture 6](https://www.youtube.com/watch?v=xnDHaNUvHBg) 配 [lecture_06.py](https://github.com/stanford-cs336/lectures/blob/de53a9f979a6ee35f7d13a5e1aadee5ea1afc58e/lecture_06.py) 的 `naive_vs_builtin_vs_compiled_gelu`，约 15 分钟，只理解比较方式，不另加一个 GELU 项目。
 
 **立即联读**：[Introduction to torch.compile](https://docs.pytorch.org/tutorials/intermediate/torch_compile_tutorial.html) 的 `Basic Usage`，核对函数/模块包装方式。
 

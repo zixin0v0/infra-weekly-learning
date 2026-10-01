@@ -2,11 +2,13 @@
 
 [本周范围与验收](README.md) · [导学规则](../../docs/study-guide.md) · [当前做法与相关进展](context.md)
 
+详细备课：[第一段](session-01.md) · [第二段](session-02.md) · [第三段](session-03.md) · [2026-10-01 资料复核](refresh-2026-10-01.md)。先按备课单预测，再在本周同一实验目录核对；未来实际开课仍须重查资料。
+
 资料预算：45 + 60 + 45 = 150 分钟。先完成融合算子，再推导在线状态；两者有关联，但不是同一个实现要求。
 
 ## 1. CUDA 线程映射怎样换成 Triton 数据块（45 分钟）
 
-**先看/读**：[CS336 Lecture 6](https://www.youtube.com/watch?v=xnDHaNUvHBg) 配 [lecture_06.py](https://github.com/stanford-cs336/lectures/blob/main/lecture_06.py) 的 `triton_introduction`，约 15 分钟。
+**先看/读**：[CS336 Lecture 6](https://www.youtube.com/watch?v=xnDHaNUvHBg) 配 [lecture_06.py](https://github.com/stanford-cs336/lectures/blob/de53a9f979a6ee35f7d13a5e1aadee5ea1afc58e/lecture_06.py) 的 `triton_introduction`，约 15 分钟。
 
 **立即联读**：[Vector Addition 教程](https://triton-lang.org/main/getting-started/tutorials/01-vector-add.html) 的 `Compute Kernel`：定位 `add_kernel` 与 Python 封装 `add`；重点追踪 program ID、`arange`、mask 和 grid。不要把一个 Triton program 直接等同于一个 CUDA 线程。
 
@@ -26,7 +28,7 @@
 
 ## 3. 一行分两块后，旧结果怎样重新缩放（45 分钟）
 
-**先读**：[Online normalizer 论文 PDF](https://arxiv.org/pdf/1805.02867)，§2 的 Algorithm 2，然后 §3 的 Algorithm 3、§3.1 的并行合并。版本为本轮读取的 v2；Top-k 融合暂不读。
+**先读**：[Online normalizer 论文 PDF](https://arxiv.org/pdf/1805.02867v2)，§2 的 Algorithm 2，然后 §3 的 Algorithm 3、§3.1 的并行合并。版本为本轮读取的 v2；Top-k 融合暂不读。
 
 **接着想一想**：用第二段的“全行最大值”提出问题：后读到更大的值时，前一块的归一化因子如何修正？分别保存块最大值与指数和，再合并，不能直接相加原指数和。
 

@@ -2,11 +2,13 @@
 
 [本周范围与验收](README.md) · [导学规则](../../docs/study-guide.md) · [当前做法与相关进展](context.md)
 
+详细备课：[第一段](session-01.md) · [第二段](session-02.md) · [第三段](session-03.md) · [2026-10-01 资料复核](refresh-2026-10-01.md)。先按备课单预测，再在本周同一实验目录核对；未来实际开课仍须重查资料。
+
 资料预算：60 + 45 + 45 = 150 分钟。视频与文档交叉使用，看到能解释当前代码的位置就暂停。
 
 ## 1. 线程怎样覆盖数组（60 分钟）
 
-**先看**：[Jeremy Howard 的 CUDA 入门视频](https://www.youtube.com/watch?v=nOxKexn3iBo)，配 [lecture_003/pmpp.ipynb](https://github.com/gpu-mode/lectures/blob/main/lecture_003/pmpp.ipynb)。本轮核验到 notebook 文件，未核验视频分段时间；以线程索引、kernel 启动为观看目标，后续精确位置以文档为准。
+**先看**：[Jeremy Howard 的 CUDA 入门视频](https://www.youtube.com/watch?v=nOxKexn3iBo)，配 [lecture_003/pmpp.ipynb](https://github.com/gpu-mode/lectures/blob/77a8df418834e5789c12da23e7d2719e0efabef1/lecture_003/pmpp.ipynb) 的 `rgb_to_grayscale_kernel`、`rgb_to_grayscale`。本轮已读索引与启动代码，未核验视频分段时间；只用该例解释映射，不增加灰度图项目。
 
 **立即联读**：[Programming Model §1.2](https://docs.nvidia.com/cuda/cuda-programming-guide/01-introduction/programming-model.html) 的执行层级，再读 [Writing SIMT Kernels §2.3.2](https://docs.nvidia.com/cuda/cuda-programming-guide/02-basics/writing-cuda-kernels.html) 的线程索引；启动语法查 [Intro to CUDA C++ §2.1.2](https://docs.nvidia.com/cuda/cuda-programming-guide/02-basics/intro-to-cuda-cpp.html)。只覆盖这些位置，不通读整章。
 
@@ -18,7 +20,7 @@
 
 ## 2. 数据在哪里，错误在哪里发现（45 分钟）
 
-**先读**：CUDA C++ 入门的 §2.1.3.2 显式内存管理和 §2.1.4 CPU/GPU 同步。若视频采用统一内存，画图比较两种路径，本实验先保持一种内存管理方式。
+**先读**：CUDA C++ 入门的 §2.1.3.2 显式内存管理、§2.1.4 CPU/GPU 同步和 §2.1.7 错误检查。若视频采用统一内存，画图比较两种路径，本实验先保持一种内存管理方式。
 
 **配合阅读**：[Compute Sanitizer](https://docs.nvidia.com/compute-sanitizer/ComputeSanitizer/index.html) 的 `Using Memcheck` 与其后错误报告说明；只学启动与定位首个非法访问的方法。
 

@@ -4,7 +4,7 @@
 
 核验快照：2026-10-01。以下是与16个单元直接相关的观察对象，不是完整热点榜或通用 SOTA 排名。每个单元的“主流”指代表性官方实践，不声称掌握采用率统计。
 
-本轮读取了下列官方页面/作者仓库对应部分；没有运行代码、验证 GPU 性能或证明生产可用。Gluon 关联论文仅核验摘要。没有单独列出的发布日期保持未知；访问日不能替代发布日期。浮动页面尚未固定 commit，开课须选择与本地依赖匹配的版本并保存记录。
+本轮读取了下列官方页面/作者仓库对应部分；没有运行前沿实现、验证 GPU 性能或证明生产可用。Gluon 关联论文仅核验摘要。没有单独列出的发布日期保持未知；访问日不能替代发布日期。前八个学习位置的 [复核记录](../docs/first-eight-weeks.md) 已固定主要代码阅读 commit、论文版本并登记浮动页面；实际运行仍须选择匹配依赖，W1 烟雾检查不代替学习或前沿复现。
 
 ## 如何选读
 
@@ -19,6 +19,8 @@ W1～W6、W13 建立表示与计算能力；W7、W11～W14 跟踪通信与训练
 来源：[TorchAO 的低精度表示](https://docs.pytorch.org/ao/stable/contributing/quantization_overview.html)；[Inference Workflows](https://docs.pytorch.org/ao/stable/workflows/inference.html)。版本定位：在线文档或默认分支快照，执行前需固定版本。
 
 目前查到的情况：官方文档已描述量化工作流，但功能成熟度按配置区分；本次所查 NVFP4 动态激活/权重量化配置仍标 prototype，要求 SM100+。不能把这个限制推广到所有量化方法。
+
+本次更新：[TorchAO v0.18.0](https://github.com/pytorch/ao/releases/tag/v0.18.0) 增加 dense Linear 的 NVFP4 训练原型，stable 页面仍标 0.17；依赖与硬件条件见 [W1 复核](../weeks/week-01-foundations/refresh-2026-10-01.md)，不增加 W1 实现。
 
 ## S02
 
@@ -66,7 +68,7 @@ W1～W6、W13 建立表示与计算能力；W7、W11～W14 跟踪通信与训练
 
 来源：[NCCL Device API](https://docs.nvidia.com/deeplearning/nccl/user-guide/docs/usage/deviceapi.html)。版本定位：在线文档或默认分支快照，执行前需固定版本。
 
-核验要点：官方文档说明 Device API 自 NCCL 2.28 引入，GIN 自 2.28.7 引入；不同能力有不同拓扑与传输要求。
+核验要点：本次 NCCL 文档标 2.32.3，Device API 自 2.28、GIN 自 2.28.7、CFT 自 2.31 引入。CFT 要求 Blackwell+、编译 CUDA 13.3+ 与相应驱动；不同模块的拓扑、网络与版本条件分别核对。详见 [W7 复核](../weeks/week-07-collectives/refresh-2026-10-01.md)，当前 Ada 规划仅观察。
 
 ## S08
 

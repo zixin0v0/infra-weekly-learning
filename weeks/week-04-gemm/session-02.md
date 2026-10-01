@@ -1,0 +1,60 @@
+# W4 第二段备课：tile 复用与两次同步
+
+[单元范围](README.md) · [三段导学](study-guide.md) · [资料复核](refresh-2026-10-01.md) · [上一段](session-01.md)
+
+备课日期：2026-10-01。资料预算：60 分钟。状态：备课已准备；实现与工具检查待完成。
+
+## 目标与先修
+
+解释一个 tile 的 global load 怎样服务多个输出，并保证下一轮加载不会覆盖仍被使用的数据。先通过朴素 GEMM 的参考与地址检查。
+
+## 读哪里，在哪里停
+
+| 预算 | 原始来源与指定范围 | 停止点 |
+| --- | --- | --- |
+| 20 分钟 | [CUDA Best Practices §10.2.3.1](https://docs.nvidia.com/cuda/cuda-c-best-practices-guide/index.html) | Shared Memory and Memory Banks 说明结束 |
+| 30 分钟 | 同页 §10.2.3.2 | C=AB 加载、同步、计算示例；多 tile 和边界自己补 |
+| 10 分钟 | 重画本段输入—共享 tile—输出关系 | 能标出加载结束与复用结束依赖即停 |
+
+访问日：2026-10-01。padding 卡点可用 §10.2.3.3 或 [转置博客](https://developer.nvidia.com/blog/efficient-matrix-transpose-cuda-cc/) 的额外一列示例替换 15 分钟，二选一，不另写转置项目。
+
+## 中文助读
+
+```mermaid
+flowchart LR
+    globalA["A 的输入 tile"] --> sharedA["共享 A tile"]
+    globalB["B 的输入 tile"] --> sharedB["共享 B tile"]
+    sharedA --> compute["多个线程累计 C tile"]
+    sharedB --> compute
+    compute --> next["复用完成后加载下一对 tile"]
+```
+
+图是数据复用示意。加载后的同步确保读取前数据齐备；计算后的同步确保下轮覆盖前没人还在读旧 tile。尾部输入填 0，但相关线程继续参与 block 同步；最终 C 的写回才按输出边界保护。
+
+两个 T×T FP32 输入 tile 的逻辑共享内存需求为 2T²×4 字节，不含 padding 等附加项。增大 T 可能增加复用，也增加线程、共享内存和寄存器压力。
+
+## 暂停题与预测
+
+1. 16×16 tile 的两块 FP32 共享数组占多少字节？一份 A 元素可服务该 tile 中多少个输出列？
+2. M=17、N=19、K=23 时，最后一个 K tile 怎么填？只给有效输出线程做 barrier 会怎样？
+
+先画被复用的数据，再标“读完”和“可覆盖”，最后对照两处同步。
+
+## 动手与检查
+
+继续 `labs/02-cuda/gemm/`，新增一个固定 tile 大小的 shared-memory 版本。复用朴素版本的输入、布局与容差，测试小矩形、整 tile 与 M/N/K 都非整除的形状。
+
+逐轮验证 K 累加，先通过参考和 memcheck，再按可用条件运行 racecheck/synccheck；保存未测项。固定一组 tile 参数，第二个 tile 大小是通过后扩展。正式计时保持两版本相同输入与边界，采样另行运行。
+
+## 卡点与过关
+
+| 卡点 | 最小回看位置 | 重新检查 |
+| --- | --- | --- |
+| 多轮 K 结果错 | §10.2.3.2 与自己的覆盖点 | 第二次同步是否保护旧 tile |
+| 尾块挂住 | W3 block 同步说明 | 无效线程是否仍参与 barrier |
+
+- [ ] 画出复用关系和两次同步职责。
+- [ ] 三维尾部输入对齐且检查记录可追溯。
+- [ ] 资源需求与支持范围明确。
+
+在 `notes.md` 的 `W4-S02` 留下预测、命令与限制；通过后进入 [第三段](session-03.md)。

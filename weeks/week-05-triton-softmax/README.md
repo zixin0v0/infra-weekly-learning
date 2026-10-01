@@ -18,6 +18,8 @@
 
 按 [章节导学](study-guide.md) 分三段学习，每段读完就动手。下面只列安排，具体链接、阅读位置和检查方法都在导学里。
 
+备课已准备：[第一段](session-01.md) · [第二段](session-02.md) · [第三段](session-03.md)。[本次资料复核](refresh-2026-10-01.md) 已完成；学习未开始，实际开课日仍按更新流程复查。
+
 | 学习段 | 指定范围 | 读后立即做 | 资料预算 |
 | --- | --- | --- | --- |
 | 1. Triton 数据块 | CS336 L6 triton_introduction；Vector Addition | 带 mask 的 Vector Add | 45 分钟 |

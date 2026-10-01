@@ -4,13 +4,13 @@
 
 学习顺序：**必要前置 → CUDA 与性能分析 → Triton 与 Attention → torch.compile → 集合通信 → 推理服务 → 分布式训练 → 调度。**
 
-课程、文档、论文和代码按具体问题放在一起：读完一小段，就做一个对应的练习。目前完成的是学习计划与目录设计，实验尚未开始。
+课程、文档、论文和代码按具体问题放在一起：读完一小段，就做一个对应的练习。前八个学习位置的 24 段备课与 2026-10-01 资料复核已准备；W1 已开课，学习练习与 GPU 实验尚未开始。
 
 重点是 GPU / LLM 系统性能工程。容器、生产集群和平台运维在后续选修中展开。调整后的顺序、阶段要求和分支选择见 [完整学习设计](docs/curriculum-design.md)，修改理由见 [安排审查](docs/plan-review.md)。
 
 ## 从这里开始
 
-1. 先做 [先修检查](docs/prerequisites.md)，再看 [W1：Tensor 与低精度存储](weeks/week-01-foundations/context.md)，按 [W1 章节导学](weeks/week-01-foundations/study-guide.md) 开始。
+1. 先做 [先修检查](docs/prerequisites.md)，再从 [前八个学习位置的 24 段备课](docs/first-eight-weeks.md) 打开当前段；今天从 [W1 第一段](weeks/week-01-foundations/session-01.md) 开始。
 2. 每次开始新单元，用 [开课前的资料更新](docs/weekly-refresh.md) 核对版本与新进展；实验怎么记录见 [学习方式](docs/learning-workflow.md)。
 3. 参照 [环境与硬件安排](docs/environment.md) 选择执行环境；目前尚未安装或验证 GPU 工具链。
 4. 在 [进度表](docs/progress.md) 记录开课日期、资料更新、实验与报告。
@@ -46,7 +46,8 @@ W1～W16 是固定单元编号。**W13 的编译实验已移到 W6 后面**，�
 | --- | --- | --- |
 | `README.md` | 开始前和验收时 | 问题、范围、练习和完成要求 |
 | `context.md` | 开始前的 30 分钟 | 当前常用做法、一个值得关注的进展、硬件条件，以及从论文到实际使用还缺什么 |
-| `study-guide.md` | 每次学习时 | 指定章节、中文重点、配套阅读、暂停练习和检查方法 |
+| `study-guide.md` | 每次学习时 | 三段概览、衔接与详细备课入口 |
+| `session-01.md`～`session-03.md` | 每段开始时 | 精确起止、中文助读、预测题、练习边界与检查条件 |
 | `refresh-YYYY-MM-DD.md` | 开课核验后创建 | 这次更新了什么、为什么保留或替换资料 |
 
 每个单元仍是 3 段，视频、文档和论文的阅读预算合计 150 分钟。官方英文视频配中文说明；文档定位到标题，论文定位到小节或算法。未经核对的视频时间戳不填写。
@@ -63,7 +64,9 @@ infra-learning/
 │   ├── week-01-foundations/
 │   │   ├── README.md
 │   │   ├── context.md
-│   │   └── study-guide.md
+│   │   ├── study-guide.md
+│   │   ├── session-01.md～session-03.md
+│   │   └── refresh-YYYY-MM-DD.md
 │   └── ...
 ├── resources/            基础课程与前沿来源索引
 ├── labs/                 开始实验时创建实现目录
@@ -71,8 +74,8 @@ infra-learning/
 └── templates/            实验、论文与资料更新记录
 ```
 
-[章节导学导航](docs/study-guide.md) 按推荐顺序列出所有练习。[基础资源](resources/README.md) 保存课程入口，[进展索引](resources/frontier-watchlist.md) 保存当前观察对象。代码只保留一份，各单元通过链接引用；目录约定见 [labs](labs/README.md) 和 [projects](projects/README.md)。
+[章节导学导航](docs/study-guide.md) 按推荐顺序列出所有练习。[基础资源](resources/README.md) 保存课程入口，[进展索引](resources/frontier-watchlist.md) 保存当前观察对象。代码只保留一份，各单元通过链接引用；目录、段号和运行归档约定见 [项目结构与文件管理](docs/repository-layout.md)；实验与复用入口见 [labs](labs/README.md) 和 [projects](projects/README.md)。
 
 ## 发布到 GitHub
 
-本地目录名与建议仓库名均为 `infra-learning`。当前未初始化 Git、未创建远程仓库、未提交或推送；本地结构确定后，按 [发布说明](docs/github-publishing.md) 连接远程仓库。
+远程仓库为 [zixin0v0/infra-weekly-learning](https://github.com/zixin0v0/infra-weekly-learning)，默认分支为 `main`。备课、来源版本、原创示意图和真实小型实验记录纳入版本管理；推送与忽略约定见 [发布说明](docs/github-publishing.md)。

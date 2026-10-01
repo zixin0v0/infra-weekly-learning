@@ -2,7 +2,7 @@
 
 [范围与验收](README.md) · [三段导学](study-guide.md) · [更新流程](../../docs/weekly-refresh.md) · [来源登记](../../resources/frontier-watchlist.md#s06)
 
-资料快照：2026-10-01。开课复核：待进行。本地状态：仅阅读，相关实现尚未运行。
+资料快照：2026-10-01。[备课资料复核已完成](refresh-2026-10-01.md)，实际开课日仍须复查。本地状态：仅阅读，相关实现尚未运行。
 
 开课前用30分钟核对本页资料。这里的练习并入本周报告，额外实现留作选修。
 
@@ -14,7 +14,7 @@
 
 在 IO-aware 算法基础上继续利用架构特性与执行流水线。经典 FA 论文仍解释稳定原理，新实现帮助认识算法与硬件协同，不意味着旧论文失去学习价值。
 
-**读哪里**：[FlashAttention-3 / FlashAttention-4](https://github.com/Dao-AILab/flash-attention)。README 的 FlashAttention-3 beta release、FlashAttention-4 (CuTeDSL)，再回到 NVIDIA CUDA Support 的架构与 dtype 支持说明。
+**读哪里**：[FlashAttention-3 / FlashAttention-4](https://github.com/Dao-AILab/flash-attention/blob/616b0e8abab13b87b01525b3916d5a863ab02ae0/README.md)。README 的 FlashAttention-3 beta release、FlashAttention-4 (CuTeDSL)，再回到 NVIDIA CUDA Support 的架构与 dtype 支持说明。
 
 **目前的状态**：README 将 FA3 标为 beta；FA4 使用 CuTe DSL，面向 Hopper/Blackwell 优化。不同代际条目和普通安装入口的支持范围必须分别看。
 

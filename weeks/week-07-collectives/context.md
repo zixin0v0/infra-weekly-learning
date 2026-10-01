@@ -2,7 +2,7 @@
 
 [范围与验收](README.md) · [三段导学](study-guide.md) · [更新流程](../../docs/weekly-refresh.md) · [来源登记](../../resources/frontier-watchlist.md#s07)
 
-资料快照：2026-10-01。开课复核：待进行。本地状态：仅阅读，相关实现尚未运行。
+资料快照：2026-10-01。[备课资料复核已完成](refresh-2026-10-01.md)，实际开课日仍须复查。本地状态：仅阅读，相关实现尚未运行。
 
 开课前用30分钟核对本页资料。这里的练习并入本周报告，额外实现留作选修。
 
@@ -14,9 +14,9 @@
 
 通信可更紧密地嵌入 GPU 计算过程，研究点转向计算/通信重叠和设备侧协作。它不会消除同步与数据依赖。
 
-**读哪里**：[NCCL Device API](https://docs.nvidia.com/deeplearning/nccl/user-guide/docs/usage/deviceapi.html)。页首对 device-side communication 的介绍，以及 LSA、Multimem、GIN 的说明和条件；不要只读 API 名称。
+**读哪里**：[NCCL Device API](https://docs.nvidia.com/deeplearning/nccl/user-guide/docs/usage/deviceapi.html)。页首对 device-side communication 的介绍，以及 LSA、Multimem、GIN、CFT 的说明和条件；不要只读 API 名称。
 
-**目前的状态**：官方文档说明 Device API 自 NCCL 2.28 引入，GIN 自 2.28.7 引入；不同能力有不同拓扑与传输要求。
+**目前的状态**：本次文档标 2.32.3：Device API 自 NCCL 2.28 引入，GIN 自 2.28.7 引入，CFT 自 2.31 引入。CFT 要求 Blackwell+、编译 CUDA 13.3+ 及对应驱动；各模块的拓扑、网络与软件条件分别判断，当前 RTX 40 系列规划不进入该路径。
 
 **在我们的设备上**：4 张 GPU 的数量不能证明 P2P、NVLink SHARP 或合适网络存在。先记录实际拓扑，Device API 不作为当前 2 卡基线的先决条件。
 

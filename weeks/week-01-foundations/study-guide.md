@@ -2,13 +2,17 @@
 
 [本周范围与验收](README.md) · [导学规则](../../docs/study-guide.md) · [当前做法与相关进展](context.md)
 
+详细备课：[第一段](session-01.md) · [第二段](session-02.md) · [第三段](session-03.md) · [2026-10-01 资料复核](refresh-2026-10-01.md)。先按备课单预测，再在本周同一实验目录核对；未来实际开课仍须重查资料。
+
 资料预算：50 + 50 + 50 = 150 分钟。先做周 README 的 20 分钟诊断；已掌握的章节跳过，用同一练习验证。
+
+2026-10-01 [开课更新](refresh-2026-10-01.md) 已完成；今天按 [第一段备课与暂停题](session-01.md) 推进。学习练习与段内验收尚未完成。
 
 ## 1. 类型和地址怎样约束存储（50 分钟）
 
-**先读**：[CS106L 第 2 讲 PDF](https://web.stanford.edu/class/archive/cs/cs106l/cs106l.1266/lectures/2026Spring-02-TypesAndStructs.pdf)，阅读器第 35～48 页：类型、静态类型检查和小练习；再读 [第 6 讲 PDF](https://web.stanford.edu/class/archive/cs/cs106l/cs106l.1266/lectures/2026Spring-06-Iterators.pdf) 第 70～84 页，聚焦地址、指针和解引用。略过容器 API 的完整巡览。
+**先读**：[CS106L 第 2 讲 PDF](https://web.stanford.edu/class/archive/cs/cs106l/cs106l.1266/lectures/2026Spring-02-TypesAndStructs.pdf)，阅读器第 35～48 页：类型、静态类型检查和小练习；第 44 页先暂停作答，第 48 页结束。再读 [第 6 讲 PDF](https://web.stanford.edu/class/archive/cs/cs106l/cs106l.1266/lectures/2026Spring-06-Iterators.pdf) 第 70～85 页，聚焦地址、指针和解引用，以第 85 页 `Array pointer` 为停止点。略过过场问答页和容器 API 的完整巡览；新增一页使用原阅读预算，不增加本段时间。
 
-**配合阅读**：[CS336 Lecture 2 视频](https://www.youtube.com/watch?v=kuYAsz7zspQ) 的 Tensor 类型主题，配 [lecture_02.py](https://github.com/stanford-cs336/lectures/blob/main/lecture_02.py) 中 `tensors_basics`、`tensors_memory`。讲义函数用于定位；两类材料分别解释 C++ 对象与 Tensor 元素，不能把 Tensor 对象地址当成数据地址。
+**配合阅读**：[CS336 Lecture 2 视频](https://www.youtube.com/watch?v=kuYAsz7zspQ) 的 Tensor 类型主题，配 [lecture_02.py 固定版本](https://github.com/stanford-cs336/lectures/blob/6ff836dd5dfcbe7e848fe1a1734f1886f1116a7a/lecture_02.py) 中 `tensors_basics`、`tensors_memory` 的 FP32/FP16 小例子；跳过大矩阵实际分配，到 `## bf16` 前结束。讲义函数用于定位，视频时间轴未核验；两类材料分别解释 C++ 对象与 Tensor 元素，不能把 Tensor 对象身份当成数据地址。
 
 **重点问题**：同样 6 个元素，FP32 和 FP16 的数据区各占多少字节？地址差的单位是字节还是元素？
 

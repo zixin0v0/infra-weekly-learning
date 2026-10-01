@@ -2,6 +2,8 @@
 
 [本周范围与验收](README.md) · [导学规则](../../docs/study-guide.md) · [当前做法与相关进展](context.md)
 
+详细备课：[第一段](session-01.md) · [第二段](session-02.md) · [第三段](session-03.md) · [2026-10-01 资料复核](refresh-2026-10-01.md)。先按备课单预测，再在本周同一实验目录核对；未来实际开课仍须重查资料。
+
 资料预算：40 + 50 + 60 = 150 分钟。先通过模型结构检查 C；本周固定小型 Decoder Block 的前向，backward 为扩展。
 
 ## 1. 先让两个 Attention 路径算同一件事（40 分钟）
@@ -16,7 +18,7 @@
 
 ## 2. 为什么多做一点计算仍可能更快（50 分钟）
 
-**先读**：[FlashAttention PDF](https://arxiv.org/pdf/2205.14135) §2.1～2.2、§3.1 和 Algorithm 1，再读 §3.2 的 IO 分析结论。停在前向算法；证明、反向和稀疏扩展后置。
+**先读**：[FlashAttention PDF](https://arxiv.org/pdf/2205.14135v2) §2.1～2.2、§3.1 和 Algorithm 1，再读 §3.2 的 IO 分析结论。停在前向算法；证明、反向和稀疏扩展后置。
 
 **接着想一想**：将 W4 的 tile 图用于 Q/K/V，把 W5 的在线状态放到每个 tile 迭代之间。论文以 HBM/SRAM 描述层次；本机消费级 GPU 的显存介质不同，关注搬运路径与容量关系。
 

@@ -2,11 +2,13 @@
 
 [本周范围与验收](README.md) · [导学规则](../../docs/study-guide.md) · [当前做法与相关进展](context.md)
 
+详细备课：[第一段](session-01.md) · [第二段](session-02.md) · [第三段](session-03.md) · [2026-10-01 资料复核](refresh-2026-10-01.md)。先按备课单预测，再在本周同一实验目录核对；未来实际开课仍须重查资料。
+
 资料预算：45 + 45 + 60 = 150 分钟。主线先做每 block 输出一个部分和；大输入的第二阶段对两个版本使用相同方法，避免只优化其中一组的收尾。
 
 ## 1. 先画归约树，再写共享内存（45 分钟）
 
-**先读**：[GPU MODE shared_reduce.cu](https://github.com/gpu-mode/lectures/blob/main/lecture_009/shared_reduce.cu)，只看 kernel 内加载、归约循环和同步，启动配置按自己的输入重写。
+**先读**：[GPU MODE shared_reduce.cu](https://github.com/gpu-mode/lectures/blob/77a8df418834e5789c12da23e7d2719e0efabef1/lecture_009/shared_reduce.cu)，只看 kernel 内加载、归约循环和同步。该例固定单 block、2048 元素；启动、block offset、尾部和多 block 收尾按自己的输入重写。
 
 **配合阅读**：[CUDA §2.3.2.1](https://docs.nvidia.com/cuda/cuda-programming-guide/02-basics/writing-cuda-kernels.html) 的 block 同步。树形过程仍不直观时，替换 15 分钟阅读为 [NVIDIA Reduction 幻灯片](https://developer.download.nvidia.com/assets/cuda/files/reduction.pdf) 中 `Reduction #3`，阅读器第 14～15 页。
 
@@ -28,7 +30,7 @@
 
 ## 3. 从“更快”推进到“证据支持什么”（60 分钟）
 
-**先看/读**：[CS336 Lecture 6 视频](https://www.youtube.com/watch?v=xnDHaNUvHBg)，配 [lecture_06.py](https://github.com/stanford-cs336/lectures/blob/main/lecture_06.py) 的 `benchmarking`、`profiling`，约 20 分钟。暂不读后面的 Triton 算子。
+**先看/读**：[CS336 Lecture 6 视频](https://www.youtube.com/watch?v=xnDHaNUvHBg)，配 [lecture_06.py](https://github.com/stanford-cs336/lectures/blob/de53a9f979a6ee35f7d13a5e1aadee5ea1afc58e/lecture_06.py) 的 `benchmarking`、`profiling`，约 20 分钟。暂不读后面的 Triton 算子。
 
 **立即联读**：[Nsight Compute](https://docs.nvidia.com/nsight-compute/ProfilingGuide/index.html) §2.2.1～2.2.3，查 section 选择与 replay；在 sections 表只看 `SpeedOfLight`、`MemoryWorkloadAnalysis`、`Occupancy` 三项。
 
