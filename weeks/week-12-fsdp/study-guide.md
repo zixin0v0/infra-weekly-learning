@@ -1,40 +1,130 @@
-# W12 章节导学：分片状态与可信恢复
+# W12 分段学习指南：分片状态与可信恢复
 
-[本周范围与验收](README.md) · [导学规则](../../docs/study-guide.md) · [当前做法与相关进展](context.md)
+[本周范围与验收](README.md) · [自学规则](../../docs/study-guide.md) · [当前做法与相关进展](context.md)
 
-资料预算：45 + 60 + 45 = 150 分钟。实现可分两次：先完成分片对照，再完成恢复。第二次未做时不标为整周完成。
+原文选读预算：45 + 75 + 75 = 195 分钟；本地例子与自查另计 75 分钟，动手与正确性检查 360 分钟。含资料复核、分析和报告，本单元约 13.5 小时，详见 [时间表](../../docs/study-guide.md#time-budget)。建议分两次：先完成分片对照，再完成恢复验证；两次都完成才满足整单元标准。
+
+## 学习目标与前置检查
+
+本单元知识点：状态分片、参数聚合、峰值显存、完整恢复。学完应当能对照 DDP/FSDP2 状态与通信，并用下一步结果验证同 world size 恢复。
+
+**开始前检查**：通过 W11 一次更新核对，知道 Adam 的状态与 step；能解释 AllGather/ReduceScatter。 缺项按 [基础补学入口](../../docs/prerequisites.md) 的材料、范围和练习完成；补学时间另计。
+
+<details>
+<summary>前置问题核对</summary>
+
+仅加载权重不会恢复 Adam 动量、步数和数据位置；先修 D 的连续/恢复对照必须已完成。
+
+</details>
+
+资源的难度、语言、前置要求、原始 URL 和停止位置统一保存在 [资源索引](../../resources/README.md)，下文按学习顺序链接。先读必读范围，卡点材料替换复习时间，可选拓展不影响基础完成。
 
 ## 1. 省掉的具体是哪一份状态（45 分钟）
 
-**先读**：[ZeRO PDF](https://arxiv.org/pdf/1910.02054)，本轮 v3：§3.1 模型状态、§3.2 其余内存，随后 §5.1～5.3 的三类分片。先不读 offload、激活重计算及大规模实验。
+资源定位：[训练状态分片的对象](../../resources/README.md#r-zero)。
+
+**先读**：[ZeRO PDF](../../resources/README.md#r-zero)，本轮 v3：§3.1 模型状态、§3.2 其余内存，随后 §5.1～5.3 的三类分片。先不读 offload、激活重计算及大规模实验。
 
 **接着想一想**：用 W11 的真实 dtype 表替换论文中的特定精度假设，分别估算参数、梯度和优化器状态；再列激活、临时通信缓冲等没有被该简化公式覆盖的项。
+
+**例子与图解：DDP 与理想分片账本**
+
+沿 W11 的 1024 个 FP32 参数、普通 FP32 Adam 算例：
+
+| 状态 | DDP 每卡 | 理想 2 卡全分片每卡 |
+| --- | --- | --- |
+| 参数 | 4096 B | 2048 B |
+| 梯度 | 4096 B | 2048 B |
+| 两个逐参数 Adam 状态 | 8192 B | 4096 B |
+| 上述合计 | 16384 B | 8192 B |
+
+**暂停题**：表中状态减半，实测峰值显存是否必定减半？激活由此也分片了吗？
+
+<details>
+<summary>核对依据</summary>
+
+不必然。执行层时会临时聚合参数，还包括激活、通信缓冲、临时工作区、元数据和分配器开销；激活不会仅因状态分片自动按卡数缩小。ZeRO 的阶段说明分片对象，不能直接视为 FSDP2 的一组同名开关。实际 dtype、优化器与混合精度配置需重新列账。
+
+</details>
 
 **动手练习**：给相同模型画 DDP 与理想分片状态表，写出随 world size 变化的部分和不会自动按卡数缩小的部分。
 
 **检查结果**：不把论文的某个固定“每参数字节数”当作所有配置通用值，也不把 ZeRO 阶段与框架 API 机械等同。
 
-## 2. 把状态账本对应到 fully_shard 的时序（60 分钟）
+## 2. 把状态账本对应到 fully_shard 的时序（75 分钟）
 
-**先读**：[FSDP2 教程](https://docs.pytorch.org/tutorials/intermediate/FSDP_tutorial.html) 的 `How to use FSDP2 → Model Initialization`、`Forward/Backward with Prefetching`。本周精度先沿用 DDP；Mixed Precision 章节按需再看。
+资源定位：[FSDP2 参数聚合与分片](../../resources/README.md#r-fsdp)。
+
+**先读**：[FSDP2 教程](../../resources/README.md#r-fsdp) 的 `How to use FSDP2 → Model Initialization`、`Forward/Backward with Prefetching`。继续读梯度裁剪与 DTensor 优化器相关说明，确认参数对象和状态的位置。本周精度先沿用 DDP；Mixed Precision 章节按需再看。
 
 **接着想一想**：在一张前向/反向图上标参数聚合和梯度通信，结合 W7 解释数据量和等待。教程预取用于理解时序，不要求把所有预取参数都调一遍。
+
+**例子与图解：存储形态随时间改变**
+
+~~~text
+局部分片参数 → 按模块 AllGather → 用完整参数计算前向
+                                      ↓
+                    按配置重新分片；反向前可能再次聚合
+                                      ↓
+局部梯度/参数 ← ReduceScatter 梯度 ← 反向计算
+      ↓
+基于分片状态做 optimizer.step()
+~~~
+
+这是帮助定位通信的概念图；预取、保留参数和重分片策略会改变具体时序。按官方例子先 fully_shard，再创建 optimizer，避免优化器引用错误的参数对象。
+
+**暂停题**：只在模型初始化后读取显存，是否足够对照 Adam 状态和执行峰值？
+
+<details>
+<summary>核对依据</summary>
+
+不够。Adam 状态可能在首次更新时才建立；须完成真实 optimizer step，再分别记录稳定持有状态和训练区间峰值。保持 W11 模型、global batch、精度与计时边界，双方可运行的配置才比较速度。DDP OOM 另列为容量结果，不能记成吞吐 0 再算加速比。
+
+</details>
 
 **动手练习**：保持 W11 的模型、精度、优化器和全局 batch，在 2 卡上比较 DDP/FSDP2；包含完整 optimizer step 后的状态，测稳态吞吐和峰值显存。
 
 **检查结果**：正确性与测量范围一致；DDP OOM 的配置单列，另选双方可运行的配置比较速度。
 
-## 3. 权重能加载为什么还不等于训练可恢复（45 分钟）
+## 3. 权重能加载为什么还不等于训练可恢复（75 分钟）
 
-**先读**：FSDP2 教程的 `State Dict with DCP APIs`，再联读 [DCP 教程](https://docs.pytorch.org/tutorials/recipes/distributed_checkpoint_recipe.html) 的 `How DCP works`、`Saving`、`Loading`，追踪 `get_state_dict` / `set_state_dict` 的状态处理。
+资源定位：[FSDP2 参数聚合与分片](../../resources/README.md#r-fsdp) → [模型、优化器与应用状态恢复](../../resources/README.md#r-dcp)。
 
-**接着想一想**：DCP 页面中的具体模型包装示例需要与 FSDP2 教程核对，不把旧 `FSDP` 包装器直接混入 `fully_shard` 代码。模型和优化器之外的步数、RNG 和数据进度需要明确保存方案。
+**先读**：FSDP2 教程的 `State Dict with DCP APIs`，再联读 [DCP 教程](../../resources/README.md#r-dcp) 的 `How DCP works`、`Saving`、`Loading`，追踪 `get_state_dict` / `set_state_dict` 的状态处理。
+
+**接着想一想**：本次核验的 DCP 页面已使用 `fully_shard`，与 FSDP2 教程联读其 state-dict 路径；开始实验仍须匹配安装版本。模型和优化器之外的步数、RNG 和数据进度需要明确保存方案。
+
+**例子与自查：恢复要接上同一次更新**
+
+~~~text
+参考：初始化 → step1 → step2 ─────────────→ step3 → 比较
+恢复：初始化 → step1 → step2 → 保存/重启 → step3 → 比较
+~~~
+
+**暂停题**：下面哪些状态需要恢复或可重建：模型、Adam 状态、step、随机数状态、下一批样本位置、AMP scaler、学习率 scheduler？保存了文件为什么还不能写“恢复通过”？
+
+<details>
+<summary>核对清单</summary>
+
+主线至少处理模型、优化器、step、RNG 和数据进度；使用 scaler/scheduler 时也要保存相应状态，否则明确标不适用。多 rank 的 RNG/数据位置要逐 rank 处理或使用可说明的确定性重建方案。保存时点固定在完成 step 后、梯度已清理且下一批尚未取出的边界，避免遗漏累积中途梯度。DCP 负责状态保存/加载的机制，应用侧仍需声明并恢复这些对象。当前核验的 DCP 示例已使用 fully_shard；沿 FSDP2 的 state-dict 路径核对版本即可。
+
+比较恢复后的下一批样本 ID、loss、参数，以及必要优化器状态；容差事先写明，保持 world size 和环境相同。出现差异按初始化→数据→RNG→模型→优化器/调度状态顺序排查。只有文件生成而没有重启后的下一步比较，仍为待验证。
+
+</details>
 
 **动手练习**：确定性小配置运行两条路径：连续训练，与中断后重启恢复；比较恢复后的下一步 loss/参数。保持 world size 和依赖环境相同。
 
 **完成后检查**：恢复验证涵盖优化器与训练进度，报告里能找到状态清单及比较结果。
 
-## 课后整理与选修
+## 独立完成与可选 AI 帮助
+
+三段都先遮住答案作答，再核对推导；答错保留原答案，回资源卡指定小节，用不同输入重做。每段“检查结果”连同 [单元完成标准](README.md) 都需要真实笔记或运行记录支持。纸面例子正确只能说明该例的理解，不能替代实验。记录在本单元实验目录的 notes.md，按 W12-S01～S03 分节。
+
+可选提示词：
+
+> 我正在学习 W12 的状态分片。我的推导是【粘贴】，我与本段核对说明不同的一步是【填写】。请只用本段的小例子检查这一步，给一个改变单项条件的反例，先让我回答。不要假设我做过实验，也不要用未核验的接口填补解释。
+
+## 整理记录与可选拓展
 
 在 `labs/06-training/fsdp2/` 保存状态账本、DDP/FSDP2 对照和恢复验证记录；关联训练项目，不复制 W11 的数据与测量实现。
 

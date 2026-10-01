@@ -1,8 +1,10 @@
-# W5 第二段备课：数值稳定与算子融合
+# W5 第二段学习指南：数值稳定与算子融合
 
-[单元范围](README.md) · [三段导学](study-guide.md) · [资料复核](refresh-2026-10-01.md) · [上一段](session-01.md)
+[单元范围](README.md) · [三段学习导航](study-guide.md) · [资料复核](refresh-2026-10-01.md) · [上一段](session-01.md)
 
-备课日期：2026-10-01。资料预算：60 分钟。状态：备课已准备；正确性与性能待测。
+整理日期：2026-10-01。原文选读预算：60 分钟。状态：学习指南已整理；正确性与性能待测。
+
+本地图解、暂停题与核对另计入本单元的自查时段，完整时间见 [分项预算](../../docs/study-guide.md#time-budget)。
 
 ## 目标与先修
 
@@ -12,13 +14,13 @@
 
 | 预算 | 原始来源与指定范围 | 停止点 |
 | --- | --- | --- |
-| 20 分钟 | [Fused Softmax](https://triton-lang.org/main/getting-started/tutorials/02-fused-softmax.html) 的 Motivations、naive_softmax | 中间 Tensor 与逻辑读写比较结束 |
+| 20 分钟 | [Fused Softmax](../../resources/README.md#r-softmax) 的 Motivations、naive_softmax | 中间 Tensor 与逻辑读写比较结束 |
 | 25 分钟 | 同页 Compute Kernel 的 softmax_kernel 与封装 | 行内 max/sum、padding、资源条件；启动优化只辨认 |
 | 15 分钟 | 同页 Unit Test、Benchmark | 误差与比较边界；不照搬加速比 |
 
-访问日：2026-10-01；[对应源码快照](https://github.com/triton-lang/triton/blob/aad2a60d958f945420c5c40936b37d411fb02e89/python/tutorials/02-fused-softmax.py)。主线一行需适合 kernel 的资源约束，不能宣称任意宽度支持。
+访问日：2026-10-01；[对应源码快照](../../resources/README.md#r-softmax)。主线一行需适合 kernel 的资源约束，不能宣称任意宽度支持。
 
-## 中文助读
+## 概念说明
 
 稳定 Softmax 是 exp(x−max)/sum(exp(x−max))；减同一最大值不改变数学归一化结果，却降低指数溢出风险。融合让 max、减法、exp、sum、除法尽量在一次 kernel 内完成，减少中间 Tensor 搬运。
 
@@ -30,6 +32,34 @@
 2. 列宽 5 补到 8，若把 padding 填 0，会怎样影响全为负数的有效输入？
 
 先解释共同平移，再列 padding 的 max 与 exp，最后回 softmax_kernel。
+
+## 读图与自查
+
+```text
+一行有效输入 → 求最大值 → 减最大值 → exp → 求和 → 相除 → 有效位置写回
+宽度为 5：   [ x0  x1  x2  x3  x4 | -∞  -∞  -∞ ]
+取 exp 后：  [ e0  e1  e2  e3  e4 |  0   0   0 ]
+                                  padding 不进入分母
+```
+
+箭头表示计算依赖。融合前多个中间结果可能写入显存，融合后尽量留在一次 kernel 内；这与减最大值的数值稳定作用是两件事。
+
+<details>
+<summary>写下预测后，再核对本段问题</summary>
+
+**题 1**：直接计算 exp(1000)、exp(1001) 会在常见浮点格式中溢出。减 1001 后得到 exp(-1)、1，归一化约为 [0.268941,0.731059]，和为 1，第二项较大。
+
+**题 2**：若 padding 填 0 并照常参加 max/exp/sum，全负有效输入的最大值会被改成 0，三个无效位置还各贡献 exp(0)=1，导致分母错误。只给最终 store 加 mask 不能消除这部分分母。填 -∞ 后无效位置指数为 0。本段排除全行 -∞，避免把未定义的归一化情形混进此推导。
+
+这些说明用于核对推导；运行结果仍需自己验证。答错时保留原答案，回看本段“读哪里”或“卡点”指向的位置，再换一个小输入重做。
+
+</details>
+
+## 可选：问 AI
+
+先独立作答和核对，仍有疑问时再使用；跳过本节不影响完成本段。
+
+> 我的 Softmax 解释是【为什么减最大值、为什么融合、padding 怎么处理】。请用一个全负且列宽为 5 的小例子检查三项理由，一次只纠正一项。不要给完整实现；最后让我设计一个“行和正确但元素顺序错误”也能被发现的检查。
 
 ## 动手与检查
 

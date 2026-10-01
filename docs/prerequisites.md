@@ -1,59 +1,160 @@
-# 按需先修检查
+# 按需补齐基础
 
-先检查能力，再安排补课。以下项目均未验收；用已有代码和解释证明掌握后可以跳过。补修时间不硬塞进原有周预算。
+[学习路线](../README.md) · [资源索引](../resources/README.md) · [时间安排](study-guide.md#time-budget)
 
-## A. 运行环境：W2 前完成，服务器部分在 W7 前完成
+这里不默认你有 AI Infra 背景，也不要求先学完整门计算机课程。先遮住答案做小检查；做不到的项目按指定顺序补学。时间是首次尝试的范围，包含小练习，另于 16 个单元计时。所有检查当前均未验收，不能由文档整理或 AI 评价代替。
 
-- [ ] 能在目标 Linux/WSL 环境进入目录、运行脚本、保存日志并定位报错。
-- [ ] 能区分 Windows、本地 WSL 与服务器，知道当前命令在哪台机器运行。
-- [ ] 能辨认当前 Python 环境与依赖来源，记录版本并查看 Git 改动。
-- [ ] GPU 能完成小 Tensor 运算；CUDA 实验能编译最小程序。版本号输出不足以证明可运行。
+## 怎么选入口
 
-缺少工具经验时选读 [Missing Semester 2026 Shell](https://missing.csail.mit.edu/2026/course-shell/) 和 [Git](https://missing.csail.mit.edu/2026/version-control/)，只补卡点，先投入 1～2 小时尝试。完整工具链配置可能需要额外时间。
+| 开始前 | 必须完成的基础 | 可延后内容 |
+| --- | --- | --- |
+| W1 | P：Python；M1：矩阵与单位；B 的 C++ 最小程序、Tensor 入门 | 微积分、训练、完整 Transformer |
+| W2 | A：Linux 与环境；B：数组、指针和 W1 布局检查 | 多卡登录与通信配置可到 W7 |
+| W5 | M2：指数、归一化；W3 归约和 W4 访存 | 反向传播推导 |
+| W6 | C：Attention、残差、归一化与前向模式 | 单卡训练到 W11 前完成 |
+| W8 | C；HTTP/JSON 和 token 入门在 W8 第一、二段补齐 | W7 多卡实验不阻塞单卡服务 |
+| W11 | D：单卡更新与恢复；M3：导数；W7 通信与 2 卡环境 | AMP 实验、4 卡、多机 |
+| W15 | P 的函数、字典、类与日志；A 的运行能力 | 不要求完成多卡训练性能实验 |
 
-工具按使用前检查：W2 编译运行，W3 sanitizer 与计数器，W5 Triton，W13 torch.compile，W7 多卡通信，W8 服务。用 [环境记录](environment.md) 保存结果；本轮未执行这些检查。
+## P. Python：能把小计算写成可重复的脚本
 
-## B. 编程与张量：W1 内诊断，W2 前补齐
+**检查**：不用复制答案，写函数读取一组数，返回元素个数、总和、均值，并把结果保存为 JSON。再读回来比较；空列表应明确报错，不能除以零。
 
-- [ ] 会编译运行 C++ 程序，理解数组、指针、函数参数、越界和生命周期。
-- [ ] 能解释 shape、stride、dtype、device 与连续存储，推导矩阵乘法输入输出形状。
-- [ ] 能用容差比较参考结果，理解浮点运算顺序可能引入误差。
+**补学顺序**：按 [P-PY：Python 入门](../resources/README.md#p-py) 读数值和列表 → 条件/循环/函数 → 字典、模块、异常 → 文件和 JSON。进入 W15 前再补类的构造函数、实例属性与方法。零编程经验先安排 6～10 小时，分 3～5 次练习；仍不能独立改输入就继续，不按用时判定通过。
 
-用 W1 的 [CS106L 选读](../weeks/week-01-foundations/README.md) 补薄弱点。未写过 C++ 时先完成最小程序；60 分钟讲义预算不代表能从零掌握 C++。
+函数把输入转换为输出；循环依次处理元素；字典把字段名与值对应；JSON 保存的是可重建的数据。报错时先读 traceback 最后一行，再找自己脚本的行号。
+
+<details>
+<summary>先写，再核对</summary>
+
+输入 `[2, 4, 6]` 应得到个数 3、总和 12、均值 4。改为 `[-2, 0, 5]` 应得到总和 3、均值 1；空列表走自己的异常分支。关闭程序再读取仍得到相同字段，说明记录落到了文件里。W15 的类练习：两个计数器各从 0 开始，分别加 2、5，结果必须分别为 2、5。
+
+</details>
+
+**完成标准**：两组输入和空输入均有解释与实际输出；能修改函数参数，能从文件重建结果。脚本与输出保存在自己的补学目录，不要求接入 GPU。
+
+## A. Linux、Python 环境与基本工具
+
+**检查**：说出当前命令运行在 Windows、WSL 还是服务器；打印当前目录、解释器位置，运行脚本并分别保存正常输出和错误输出。
+
+**补学顺序**：按 [P-SHELL](../resources/README.md#p-shell) 的 shell 导航与重定向，再读 [P-ENV](../resources/README.md#p-env) 的虚拟环境和 Git 改动查看。先安排 3～5 小时；驱动安装、网络和服务器权限另计。
+
+在 Linux/WSL 的自己的练习目录运行 `pwd`、`ls`、`python --version`，用 `python -c "import sys; print(sys.executable)"` 确认解释器。已有 `practice.py` 后运行 `python practice.py > output.txt 2> error.txt`。在脚本中制造一个不存在的变量，再查 `error.txt`；修好后重跑。这里只操作自己的练习文件。
+
+~~~text
+终端工作目录 → Python 解释器 → 当前环境里的依赖 → 脚本
+                                  ├→ 标准输出 output.txt
+                                  └→ 错误输出 error.txt
+~~~
+
+<details>
+<summary>核对环境判断</summary>
+
+`sys.executable` 应指向你实际选择的环境；只看提示符名字不足以确认。不存在的变量产生 NameError，错误日志应含脚本位置。版本号只证明命令存在，不能证明 CUDA 程序可运行。Git 的 `status` 显示改了哪些文件，`diff` 显示改了什么内容。
+
+</details>
+
+**完成标准**：能重现一次失败、定位并修复；能区分脚本问题与找错解释器；在 [环境记录](environment.md) 填写实际信息。W2 前另编译 CUDA 最小程序并验证输出，W7 前核对服务器设备和通信；这些由将来的学习执行，本次未运行。
+
+## B. C++ 与 Tensor：先会编写，再研究布局
+
+**C++ 补学**：[P-CPP](../resources/README.md#p-cpp) 依次读程序结构、变量、条件/循环、函数，再读指针和 `std::array`。先理解 `main` 是入口、编译把源文件变成可执行程序。已会 Python 但没写过 C++，安排 6～10 小时；CS106L 的少量幻灯片只适合之后巩固，不能承担从零入门。
+
+在已配置的 Linux/WSL 编译器中，自己创建 `array_sum.cpp`，用 `std::array<float, 4>` 存 `{1, 2, 3, 4}`，用循环求和，函数返回结果。用 `g++ -std=c++17 array_sum.cpp -o array_sum` 编译，再运行 `./array_sum`。Windows 可沿用 W1 已记录的编译器配置。编译错误从第一条看起，不额外引入 CMake。
+
+<details>
+<summary>C++ 自查</summary>
+
+结果为 10；四个有效下标是 0～3，循环不能访问下标 4。`&values[0]` 是首元素地址，解引用取得元素；引用是已有对象的别名。局部数组在函数返回后结束生命周期，返回它的指针不能延长存储寿命。函数可返回求和的值。
+
+</details>
+
+**Tensor 补学**：[P-TENSOR](../resources/README.md#p-tensor) 读创建、属性、张量运算，约 2～3 小时含实践；先用 CPU。创建 0～5 的六个数，排为 2×3，分别做逐元素加法和矩阵乘法。
+
+<details>
+<summary>Tensor 自查</summary>
+
+`[[0,1,2],[3,4,5]] + 1` 得到 `[[1,2,3],[4,5,6]]`。原矩阵乘其转置得到 `[[5,14],[14,50]]`，shape 为 2×2。逐元素乘法要求可广播的 shape；矩阵乘法匹配内维。布局/别名在 W1 深入，此处不提前重复整段。
+
+</details>
+
+**完成标准**：C++ 能独立编译、改长度、解释边界；Tensor 小例子先预测再运行。达到后开始 W1；W1 的布局与计数检查通过后进入 W2。
+
+## M. 数学：按使用时点补学
+
+| 小段 | 何时需要 | 材料与预算 | 立即练习 |
+| --- | --- | --- | --- |
+| M1 矩阵与单位 | W1 前 | [P-MATH](../resources/README.md#p-math) 标量、向量、矩阵、点积、矩阵乘法；3～5 小时含手算 | 算 2×3 乘 3×2；将元素数换算为 B、KiB、MiB |
+| M2 指数与归一化 | W5 前 | [P-SOFTMAX](../resources/README.md#p-softmax) Softmax 运算；1～2 小时 | 手算 `[0, ln(3)]`，再给两数同时加 100 |
+| M3 导数与链式法则 | 单卡训练前 | [P-CALCULUS](../resources/README.md#p-calculus) 导数、偏导、链式法则；3～5 小时 | 对 `loss=(weight*2-6)^2` 求 weight=1 时的梯度 |
+| M4 汇总统计 | W8/W16 前 | [P-STATS](../resources/README.md#p-stats) 随机变量、均值与方差；1～2 小时，配本段分位数定义 | 对 `[1,2,3,4,100]` 算均值、中位数、nearest-rank p95 |
+
+<details>
+<summary>数学核对依据</summary>
+
+M1：`[[1,2,3],[4,5,6]] × [[1,0],[0,1],[1,1]] = [[4,5],[10,11]]`。第一个输出是 `1*1+2*0+3*1=4`。六个 FP32 数按每个 4 B 为 24 B；1 KiB=1024 B，1 MiB=1024² B，GB 与 GiB 分开。
+
+M2：指数为 `[1,3]`，除以和 4 得 `[0.25,0.75]`。同时加同一常数不改变比值；计算时先减最大值避免指数过大。W5 再学习浮点与分块细节。
+
+M3：先求平方外层，再乘内层导数：`2*(2*weight-6)*2`，weight=1 时为 -16。学习率 0.1 的一步 SGD 得 2.6；这是单个平方误差的约定，不是自动适用所有 mean loss。
+
+M4：均值 22，中位数 3。这里 p95 用排序后第 `ceil(0.95*n)` 个数，因此为 100；插值算法可能给出其他数，报告要写方法。5 个样本的尾部分位数不稳定，不能宣称测出了生产尾延迟。
+
+</details>
+
+**完成标准**：每小段换一组数字能重算，明确矩阵乘法内维、单位及 loss/分位数约定；不要求重复通读同一本教材。
 
 ## C. 模型结构：W6 前完成
 
-- [ ] 给定 batch、序列长度、隐藏维度与头数，写出 Q/K/V 和 Attention score 的形状。
-- [ ] 解释 causal mask、softmax、残差、归一化与 MLP 在 Decoder Block 中的位置。
-- [ ] 运行小型前向例子，说明 eval、dropout 与是否记录梯度。
-- [ ] 区分 prefill 与逐 token decode，解释 KV Cache 保存什么。
+按 [P-MODEL](../resources/README.md#p-model) 读 Attention 的 Q/K/V 与多头图，再读残差、LayerNorm 和位置前馈网络；最后对照 W6 的小型 pre-norm Block。安排 4～6 小时含 shape 推演和 CPU 前向。教材完整编码器—解码器仅作结构参考，不要求实现机器翻译或训练语言模型。
 
-在 [CS336 2026 课程表](https://cs336.stanford.edu/) 定位 Lecture 3: Architectures，配合 [PyTorch SDPA](https://docs.pytorch.org/tutorials/intermediate/scaled_dot_product_attention_tutorial.html)。先用 1～2 小时读图与推形状，再做小例子；不要求训练语言模型。prefill/decode 有困难时可提前选看 W8 的 Lecture 10。
+~~~text
+输入 X[B,S,W] → 每个位置的 Linear → Q/K/V[B,H,S,D]
+                                      ↓ QKᵀ / √D
+                                 score[B,H,S,S]
+                                      ↓ causal mask → softmax → 乘 V
+                                    [B,H,S,D] → 合并头[B,S,W]
+残差：把同 shape 的输入加回；MLP：逐位置 W → F → W
+~~~
 
-## D. 单卡训练：W7 的 DDP 扩展前完成，最迟 W11 前完成
+**暂停题**：B=1、S=3、H=2、D=4 时，W 是多少，score 有多少元素？第 2 个位置可关注第 3 个位置吗？`eval()` 是否等同于关闭 autograd？
 
-- [ ] 写出 forward、loss、backward、optimizer step 与清梯度流程，解释清梯度时机。
-- [ ] 在固定小批次上让 loss 明显下降，用一次参数更新验证梯度生效。
-- [ ] 区分 train/eval 与启用/关闭 autograd。
-- [ ] 区分参数、梯度、优化器状态、保存的激活和临时工作区；不套用通用的每参数字节常数。
-- [ ] 保存并恢复小模型、优化器与步数，核对恢复后的下一步行为。
+<details>
+<summary>模型自查</summary>
 
-材料：[Learn the Basics](https://docs.pytorch.org/tutorials/beginner/basics/intro.html)、[Autograd](https://docs.pytorch.org/tutorials/beginner/basics/autogradqs_tutorial.html)、[Optimization](https://docs.pytorch.org/tutorials/beginner/basics/optimization_tutorial.html)。先用小型 MLP 与合成数据，已有代码可复用。
+W=H×D=8；score 是 1×2×3×3，共 18 个元素。从第 1 个位置开始数，causal 条件下第 2 个位置只能看前两个。残差相加两端 shape 必须一致。`eval()` 切换 dropout 等模块行为，`no_grad()` 控制梯度记录，二者独立；W6 的函数式 SDPA 还要显式传 `dropout_p=0`。
 
-若这些概念尚未掌握，先安排独立补修单元。不要一边学习 DDP，一边调试基础训练逻辑。混合精度概念在 W11 补入，先保持 FP32 参考。
+</details>
 
-## 实际依赖与推荐顺序
+**完成标准**：逐箭头说明 shape，能运行 CPU 小前向并解释 mask；不把整张 score、KV Cache 和模型参数混为一项。prefill/decode 由 W8 第一段正式引入，不要求提前读 W8。
 
-W 编号是固定单元 ID，推荐顺序以 [总路线](../README.md) 为准：W13 在 W6 后学习。相邻单元也不一定依赖前一个单元的全部硬件实验。
+## D. 单卡训练：W11 前完成
 
-| 要开始的内容 | 必须具备 | 可稍后补做 |
-| --- | --- | --- |
-| W2～W5 算子 | A、B；前一算子的正确性与测量能力 | 更多输入与优化版本 |
-| W6 模型分析 | C；计时与 Softmax 理解 | 手写完整 FlashAttention |
-| W13 编译 | W5 表达式或 W6 小模型；正确性检查和 GPU 计时 | 区域编译、完整自定义 Attention |
-| W7 通信 | Linux 多卡环境；张量与通信语义 | D 未完成时，最小 DDP 移到 W11 |
-| W8 单卡推理 | C；可用的单卡服务环境 | W7 的 4 卡实验 |
-| W11～W12 训练 | D；W7 通信概念与至少 2 卡环境 | 4 卡、改变 world size 的恢复 |
-| W15～W16 调度 | Python 与任务日志；W15 Ray 基础 | 复杂并行训练实现 |
+按 [P-TRAIN](../resources/README.md#p-train) 的 autograd → Optimization → 保存恢复顺序学习。先用 5～8 小时完成确定性的小模型练习；数据合成即可，不下载大数据集。
 
-硬件等待时可进入不依赖它的单元；进度表保留未完成项，不将未测量的任务标为通过。
+~~~text
+取同一批数据 → zero_grad → forward → loss → backward → optimizer.step
+                                                  ↓
+                                          梯度留在 .grad 中
+保存：模型 + 优化器 + 步数 + 数据位置 + 必要 RNG 状态
+~~~
+
+1. 用 M3 的标量例子验证一次手算梯度，再用小 Linear/MLP 拟合固定合成输入。
+2. 比较一次更新前后的参数、loss；清梯度后再做下一步。先用 SGD，无 dropout，固定种子和数据顺序。
+3. 再使用 Adam，先执行更新以建立优化器状态；画参数、梯度、两个动量状态的 dtype/shape 表。
+4. 连续做 3 步，与做 2 步后保存、重新创建模型/优化器、恢复再做第 3 步比较。保存模板查资源卡中的 general checkpoint，不只保存权重。
+
+<details>
+<summary>训练自查</summary>
+
+`backward()` 累加梯度但不自动更新参数；`step()` 执行更新；清梯度避免把前一步意外累加。只恢复模型会丢失 Adam 的动量与步数等状态，所以下一步可能不同。固定数据无随机层时，可以简化 RNG 影响，但必须说明假设；加入随机采样/随机层后需保存相应 RNG 和采样位置。
+
+</details>
+
+**完成标准**：手算/程序的一步结果一致；固定小批次 loss 下降；连续/恢复路径的下一步在声明容差内一致；能说明保存了哪些状态。多卡扩展性留到 W11。
+
+## 依赖和硬件等待
+
+推荐顺序仍为 W1 → W2 → W3 → W4 → W5 → W6 → W13 → W7 → W8 → W9 → W10 → W11 → W12 → W14 → W15 → W16。W7 需要 2 卡才能完成测量；等待时可先学 W8～W10。W14 可在 CPU 验证 TP 代数；W15、W16 可在 CPU 完成主线。未完成的硬件检查留在进度表，不用纸面计算替代实测。
+
+不熟悉英文术语时，先按中文图例写出对象和操作，再只查指定原文；不要求依靠 AI 翻译整份材料。基础检查通过后保留笔记，后续遇到同一概念直接回看。

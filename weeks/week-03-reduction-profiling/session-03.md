@@ -1,8 +1,10 @@
-# W3 第三段备课：假设、采样与性能证据
+# W3 第三段学习指南：假设、采样与性能证据
 
-[单元范围](README.md) · [三段导学](study-guide.md) · [资料复核](refresh-2026-10-01.md) · [上一段](session-02.md)
+[单元范围](README.md) · [三段学习导航](study-guide.md) · [资料复核](refresh-2026-10-01.md) · [上一段](session-02.md)
 
-备课日期：2026-10-01。资料预算：60 分钟。状态：备课已准备；计时与 profiler 采样待完成。
+整理日期：2026-10-01。原文选读预算：60 分钟。状态：学习指南已整理；计时与 profiler 采样待完成。
+
+本地图解、暂停题与核对另计入本单元的自查时段，完整时间见 [分项预算](../../docs/study-guide.md#time-budget)。
 
 ## 目标与先修
 
@@ -12,13 +14,13 @@
 
 | 预算 | 原始来源与指定范围 | 停止点 |
 | --- | --- | --- |
-| 20 分钟 | [CS336 L6 视频](https://www.youtube.com/watch?v=xnDHaNUvHBg)，配 [固定讲义](https://github.com/stanford-cs336/lectures/blob/de53a9f979a6ee35f7d13a5e1aadee5ea1afc58e/lecture_06.py) 的 benchmarking、profiling | 两函数结束；不进入 Triton |
-| 25 分钟 | [Nsight Compute Profiling Guide §2.2.1～2.2.3](https://docs.nvidia.com/nsight-compute/ProfilingGuide/index.html) | sets、sections、replay 说明结束 |
+| 20 分钟 | [CS336 L6 视频](../../resources/README.md#r-l6)，配 [固定讲义](../../resources/README.md#r-l6) 的 benchmarking、profiling | 两函数结束；不进入 Triton |
+| 25 分钟 | [Nsight Compute Profiling Guide §2.2.1～2.2.3](../../resources/README.md#r-ncu) | sets、sections、replay 说明结束 |
 | 15 分钟 | 同页 sections 表的 SpeedOfLight、MemoryWorkloadAnalysis、Occupancy | 找到每项回答的问题后停 |
 
 访问日：2026-10-01。函数名是讲义定位词，视频分钟数未核验。
 
-## 中文助读
+## 概念说明
 
 正式延迟先在无 profiler 条件下测量；采样会引入 replay 或其他干扰。指标用来核对机制，不代替最终延迟。occupancy 描述活跃工作资源情况，较高值不自动说明更快。
 
@@ -31,9 +33,37 @@
 
 先区分观察与因果，再选一个具体规模，最后只查相关 section。
 
+## 读图与自查
+
+| 观察位置 | 可以看到什么 | 单凭它还不能判断什么 |
+| --- | --- | --- |
+| 无 profiler 的重复计时 | 这个输入下第一阶段快了多少 | 为什么变快 |
+| MemoryWorkloadAnalysis | 采样到的访存行为 | 所有输入都受带宽限制 |
+| Occupancy | 活跃 warp 与资源限制相关信息 | occupancy 高就一定快 |
+| 实现和输入对照表 | 本次究竟改了哪一项 | 未控制因素没有影响 |
+
+按行阅读：先找正式时间，再挑一个能区分假设的指标。不要从工具页面的第一张利用率图直接跳到结论。
+
+<details>
+<summary>写下预测后，再核对本段问题</summary>
+
+**题 1**：可能是共享内存操作/同步减少，也可能是输入规模改变了主要成本或采样噪声。先重复无 profiler 计时确认差异稳定，再检查共享访问、指令与寄存器等相关数据；大输入差异小不自动证明带宽已满。
+
+**题 2**：还需输入、block、寄存器/共享资源、指令和访存数据，以及相同条件下的正式延迟。较高 occupancy 可能伴随更多操作或资源竞争。profiler 会 replay 或干扰执行，其耗时不能混入正式性能表。没有指标时可以报告时间观察，把原因保留为待验证。
+
+这些说明用于核对推导；运行结果仍需自己验证。答错时保留原答案，回看本段“读哪里”或“卡点”指向的位置，再换一个小输入重做。
+
+</details>
+
+## 可选：问 AI
+
+先独立作答和核对，仍有疑问时再使用；跳过本节不影响完成本段。
+
+> 我的观察是【真实计时和输入】，猜测是【原因】，现有采样为【指标或尚缺项】。请给两个可能解释，并为每个只建议一个最小区分方法。明确哪些结论暂时不能成立，不要虚构 profiler 指标，也不要代写最终报告。
+
 ## 动手与检查
 
-继续 `labs/02-cuda/reduction/`。至少四个规模，无 profiler 按 W2 方法做预热与重复计时；加入同语义 `torch.sum` 工程参考，注明累加 dtype、分配和调用开销是否相同。
+继续 `labs/02-cuda/reduction/`。至少四个规模，无 profiler 按 W2 方法比较两版 GPU 第一阶段；CPU 收尾沿用第一段，用于正确性核对。若加入 `torch.sum` 时间，单列为“完整归约库参考”，注明累加 dtype、分配和调用范围；它输出最终标量，不能拿来除以仅生成部分和的第一阶段时间，宣称完整归约加速比。
 
 对一个代表规模和两个实现分别采样指定 sections，保存版本、命令及关键小表；大型 `.ncu-rep` 放忽略的 `artifacts/`，报告记录路径和生成方法。比较时固定输入、block、收尾、计时范围，先只解释一项实现变化。
 

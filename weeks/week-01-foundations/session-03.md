@@ -1,8 +1,10 @@
-# W1 第三段备课：Linear 的参数、字节与 FLOPs
+# W1 第三段学习指南：Linear 的参数、字节与 FLOPs
 
-[单元范围](README.md) · [三段导学](study-guide.md) · [资料复核](refresh-2026-10-01.md) · [上一段](session-02.md)
+[单元范围](README.md) · [三段学习导航](study-guide.md) · [资料复核](refresh-2026-10-01.md) · [上一段](session-02.md)
 
-备课日期：2026-10-01。资料预算：50 分钟。状态：备课已准备；计算器与报告待完成。
+整理日期：2026-10-01。原文选读预算：50 分钟。状态：学习指南已整理；计算器与报告待完成。
+
+本地图解、暂停题与核对另计入本单元的自查时段，完整时间见 [分项预算](../../docs/study-guide.md#time-budget)。
 
 ## 目标与先修
 
@@ -12,13 +14,13 @@
 
 | 预算 | 原始来源 | 指定位置与停止点 |
 | --- | --- | --- |
-| 20 分钟 | [CS336 Lecture 2 固定讲义](https://github.com/stanford-cs336/lectures/blob/6ff836dd5dfcbe7e848fe1a1734f1886f1116a7a/lecture_02.py) | `tensor_operations_flops` 的 FLOPs / FLOP/s 区分与 Linear model 计数；到 `actual_num_flops` 后暂停 |
-| 20 分钟 | 同一函数，配 [官方视频](https://www.youtube.com/watch?v=kuYAsz7zspQ) | 将矩阵维度、存储与乘加次数联系起来；本段不运行讲义的大矩阵和 GPU benchmark |
+| 20 分钟 | [CS336 Lecture 2 固定讲义](../../resources/README.md#r-l2) | `tensor_operations_flops` 的 FLOPs / FLOP/s 区分与 Linear model 计数；到 `actual_num_flops` 后暂停 |
+| 20 分钟 | 同一函数，配 [官方视频](../../resources/README.md#r-l2) | 将矩阵维度、存储与乘加次数联系起来；本段不运行讲义的大矩阵和 GPU benchmark |
 | 10 分钟 | [本周补充阅读](context.md) 的报告假设算例 | 只读 4-bit 值与分组 scale 的计数范围，写出遗漏项后停 |
 
 讲义固定提交，访问日为 2026-10-01。没有已核对的视频分钟数；按函数定位。梯度、优化器、MFU 和完整大模型估算后置。
 
-## 中文助读
+## 概念说明
 
 约定输入为 `(batch, in_features)`，权重为 `(out_features, in_features)`，输出为 `(batch, out_features)`。权重参数数为 `in_features × out_features`；有 bias 时再加 `out_features`。
 
@@ -39,11 +41,41 @@
 2. batch 翻倍后，哪些项翻倍？参数数量是否改变？参数/输入/输出都改为 FP16 时字节与数学 FLOPs 分别怎样变化？
 3. 假设 1024 个 4-bit 值，每 32 个值带一个 FP32 scale，忽略 padding，数据加 scale 的总量是多少？为何不能把它当成真实 NVFP4 存储公式？
 
+## 读图与自查
+
+```text
+输入 X                 权重 W 的转置            输出 Y
+[batch, in_features] × [in_features, out_features] → [batch, out_features]
+                                                        + bias[out_features]
+batch 增加：多处理输入行；同一组权重被反复使用
+```
+
+读图时先划掉矩阵相乘的内侧维度，再写输出 shape。权重在模块中按 [out_features,in_features] 保存，图中表示参与乘法的转置。
+
+<details>
+<summary>写下预测后，再核对本段问题</summary>
+
+**题 1**：参数=128×256+256=33,024；FP32 参数数据=132,096 字节。输入=32×128×4=16,384 字节，输出=32×256×4=32,768 字节。GEMM=2×32×128×256=2,097,152 FLOPs；另计 bias 时加 8,192 次加法。
+
+**题 2**：batch 翻倍使输入/输出元素数和前向 FLOPs 翻倍，参数数不变。都改为 FP16 后逻辑字节减半，数学 FLOPs 不变；耗时不能由此推定。
+
+**题 3**：打包值占 1024×4/8=512 字节，32 个 scale 占 128 字节，共 640 字节。算例没有指定真实格式的其他 scale、padding 或元数据，不能代替 NVFP4 格式说明。若结果不同，先逐项写单位，不把训练状态和峰值显存加进本题。
+
+这些说明用于核对推导；运行结果仍需自己验证。答错时保留原答案，回看本段“读哪里”或“卡点”指向的位置，再换一个小输入重做。
+
+</details>
+
+## 可选：问 AI
+
+先独立作答和核对，仍有疑问时再使用；跳过本节不影响完成本段。
+
+> 我的 Linear 资源表是【粘贴参数、字节、FLOPs 及公式】。请只检查单位和重复计数，先指出一个问题，再让我重算。接着只改变 batch 或 dtype 出一道迁移题。不要替我写计算器，也不要从字节数推断实际 GPU 加速比。
+
 ## 动手与检查
 
 入口为 `labs/01-foundations/resource-accounting/`，动手时建立 `resource_accounting.py` 和一个 `report.md`。计算器支持 batch、输入/输出维度、dtype 字节数和 bias 选项，输出各项单位与计数约定。
 
-用周诊断题作参考，另选小型维度、有/无 bias、两种 batch 和两种 dtype 核对；检查参数数不随 batch 变化。可以用小型 PyTorch Linear 的参数 `numel` 验证参数账本，非连续输入的数学语义沿用第二段知识，不能据此宣称没有临时复制。
+用周自测题作参考，另选小型维度、有/无 bias、两种 batch 和两种 dtype 核对；检查参数数不随 batch 变化。可以用小型 PyTorch Linear 的参数 `numel` 验证参数账本，非连续输入的数学语义沿用第二段知识，不能据此宣称没有临时复制。
 
 ## 卡点与过关
 
@@ -57,11 +89,4 @@
 - [ ] 能独立解释 batch 和 dtype 对各项的影响。
 - [ ] 报告保留格式假设、scale 开销与未计项，周验收仍需前两段真实检查。
 
-<details>
-<summary>完成推导后核对</summary>
-
-诊断题参数为 33,024 个，FP32 参数数据 132,096 字节；输入 16,384 字节，输出 32,768 字节；GEMM 为 2,097,152 FLOPs，未计 bias 加法。格式假设是 512 字节打包数据加 128 字节 scale，共 640 字节。这些为推导值，完整程序结果尚未产生。
-
-</details>
-
-按 `W1-S03` 留下实际阅读、预测、代码/命令、核对和卡点，合并三段报告后按 [W1 验收](README.md) 更新真实学习状态。
+在实验 `notes.md` 的 `W1-S03` 下记录实际阅读、预测、代码/命令、核对和卡点，合并三段报告后按 [W1 验收](README.md) 更新真实学习状态。

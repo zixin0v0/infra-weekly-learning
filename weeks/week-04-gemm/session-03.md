@@ -1,8 +1,10 @@
-# W4 第三段备课：Roofline 预测与库基线
+# W4 第三段学习指南：Roofline 预测与库基线
 
-[单元范围](README.md) · [三段导学](study-guide.md) · [资料复核](refresh-2026-10-01.md) · [上一段](session-02.md)
+[单元范围](README.md) · [三段学习导航](study-guide.md) · [资料复核](refresh-2026-10-01.md) · [上一段](session-02.md)
 
-备课日期：2026-10-01。资料预算：45 分钟。状态：备课已准备；性能数据待测。
+整理日期：2026-10-01。原文选读预算：45 分钟。状态：学习指南已整理；性能数据待测。
+
+本地图解、暂停题与核对另计入本单元的自查时段，完整时间见 [分项预算](../../docs/study-guide.md#time-budget)。
 
 ## 目标与先修
 
@@ -12,17 +14,17 @@
 
 | 预算 | 原始来源与指定范围 | 停止点 |
 | --- | --- | --- |
-| 15 分钟 | [CS336 L2 视频](https://www.youtube.com/watch?v=kuYAsz7zspQ)，配 [固定讲义](https://github.com/stanford-cs336/lectures/blob/6ff836dd5dfcbe7e848fe1a1734f1886f1116a7a/lecture_02.py) 的 arithmetic_intensity_matmul、roofline_plots | 两个定位函数结束 |
-| 20 分钟 | [Scaling Book Roofline](https://jax-ml.github.io/scaling-book/roofline/) 的 Visualizing rooflines、Matrix multiplication | 矩阵计算模型结束；不照搬书中设备数字 |
+| 15 分钟 | [CS336 L2 视频](../../resources/README.md#r-l2)，配 [固定讲义](../../resources/README.md#r-l2) 的 arithmetic_intensity_matmul、roofline_plots | 两个定位函数结束 |
+| 20 分钟 | [Scaling Book Roofline](../../resources/README.md#r-roofline) 的 Visualizing rooflines、Matrix multiplication | 矩阵计算模型结束；不照搬书中设备数字 |
 | 10 分钟 | 用当前 GEMM 写 FLOPs、字节、算术强度 | 各量单位和搬运假设完整即停 |
 
 访问日：2026-10-01。视频时间轴未核验，使用讲义函数定位。
 
-## 中文助读
+## 概念说明
 
 采用每乘加 2 FLOPs 的约定，GEMM 为 2MNK FLOPs。若每个输入只读一次、输出写一次、C 不需要先读，理想搬运下界为元素字节数×(MK+KN+MN)。这是假设下界，不是实际 DRAM 计数。
 
-算术强度 AI=FLOPs/字节；理想吞吐上界为 min(同精度计算上限, 带宽×AI)。教学朴素实现的逻辑重复加载和缓存实际事务不同，需分别说明。设备峰值、持续带宽与 TF32/FP32 路径不能混用。
+算术强度 AI=FLOPs/字节；理想吞吐上界为 min(同精度计算上限, 带宽×AI)。练习中的朴素实现的逻辑重复加载和缓存实际事务不同，需分别说明。设备峰值、持续带宽与 TF32/FP32 路径不能混用。
 
 ## 暂停题与预测
 
@@ -31,18 +33,41 @@
 
 先写量纲，再区分模型下界与实测事务，最后回 Roofline 两标题。
 
+## 读图与自查
+
+```text
+吞吐上界 P
+  ↑                 ───────── 同精度计算上限
+  |               /
+  |             /  斜线：带宽 × 算术强度
+  |           /
+  +─────────────────────────→ 算术强度（FLOPs/B）
+```
+
+这是 Roofline 形状示意，无设备数值。对自己的点先说明字节取自理想下界还是实际搬运估计；二者不能混画成同一种观测。
+
+<details>
+<summary>写下预测后，再核对本段问题</summary>
+
+**题 1**：FLOPs=2×16³=8192，理想字节=4×(256+256+256)=3072，AI=8/3≈2.67 FLOPs/B。复用越多，执行同样计算需要搬运的字节可能越少。若 batch 只是复制独立 GEMM 且没有跨批复用，FLOPs 和字节同比增长，AI 未必变化；只有明确共享/搬运假设后才能判断。
+
+**题 2**：库还可能采用更好的调度、指令和资源利用，tile 复用原理正确不保证练习实现胜出。TF32 与 FP32 策略不同，不能把差异全归因于 tile；先固定可比精度并检查误差，再解释性能。
+
+这些说明用于核对推导；运行结果仍需自己验证。答错时保留原答案，回看本段“读哪里”或“卡点”指向的位置，再换一个小输入重做。
+
+</details>
+
+## 可选：问 AI
+
+先独立作答和核对，仍有疑问时再使用；跳过本节不影响完成本段。
+
+> 我的 Roofline 估算是【FLOPs、字节公式、精度与复用假设】。请先核对单位，再用一个只改变复用假设的反例检查我是否混淆理论下界与实际搬运。不要替我选硬件峰值，也不要把库更快归因于一个未经验证的机制。
+
 ## 动手与检查
 
 继续 `labs/02-cuda/gemm/`，加入同输入的 `torch.matmul` 基线。记录实际 dtype、TF32/精度策略、布局、输出分配与同步范围；可比较的数值语义先通过误差检查。
 
-选小/中/大方阵和一个长方形，提前检查显存容量；三组无 profiler 预热、重复测量，保留原始延迟与由同一 FLOPs 口径计算的吞吐。分别列理想下界和实现搬运估计，未知缓存或 Tensor Core 路径写待验证。只对一个代表形状采样已有 W3 sections。
-
-<details>
-<summary>先预测，再核对纸面值</summary>
-
-16³×2=8192 FLOPs；4×(256+256+256)=3072 字节；AI≈2.67 FLOPs/B。它们是给定假设的推导，不是设备测量。
-
-</details>
+选小/中/大方阵和一个长方形，提前检查显存容量；三组无 profiler 预热、重复测量，保留原始延迟与由同一 FLOPs 计数方法计算的吞吐。分别列理想下界和实现搬运估计，未知缓存或 Tensor Core 路径写待验证。只对一个代表形状采样已有 W3 sections。
 
 ## 卡点与过关
 

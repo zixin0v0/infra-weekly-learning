@@ -4,7 +4,7 @@
 
 ## 哪些内容同步
 
-备课应同步：助读规则、24 段备课、带日期的资料复核、来源版本、原创概念图与导航一起保存，才能追踪课程如何改变。实际动手后的代码、配置、小型真实原始数据和报告也应同步，学习状态依据真实验收。
+学习指南应同步：自学规则、24 段学习指南、带日期的资料复核、来源版本、原创概念图与导航一起保存，才能追踪学习安排如何调整。实际动手后的代码、配置、小型真实原始数据和报告也应同步，学习状态依据真实验收。
 
 范围与入口见 [前八个学习位置](first-eight-weeks.md)，职责与运行归档见 [文件管理](repository-layout.md)。
 
@@ -23,7 +23,7 @@ git branch --show-current
 git remote -v
 ```
 
-只暂存本次任务文件。例如单份文档可以用 `git add -- docs/first-eight-weeks.md`；本次完整备课还包括各周、导航、模板与来源记录。暂存后用 `git diff --cached --stat` 和 `git diff --cached --check` 再核对，随后提交。
+只暂存本次任务文件。例如单份文档可以用 `git add -- docs/first-eight-weeks.md`；本次完整学习指南还包括各周、导航、模板与来源记录。暂存后用 `git diff --cached --stat` 和 `git diff --cached --check` 再核对，随后提交。
 
 ```shell
 git commit -m "Prepare first eight learning units"
@@ -41,7 +41,7 @@ git rev-parse HEAD
 git ls-remote origin refs/heads/main
 ```
 
-对比后两条的 commit SHA 确认远程接收，再从 GitHub 的备课总入口打开周导航与新增文件。常规 main checkout 也可用 `git push origin main`。推送结果以命令和远程核验为准，文档准备完成不代表已经推送成功。
+对比后两条的 commit SHA 确认远程接收，再从 GitHub 的自学总入口打开周导航与新增文件。常规 main checkout 也可用 `git push origin main`。推送结果以命令和远程核验为准，文档准备完成不代表已经推送成功。
 
 许可证尚未选择，仓库不预填授权声明。链接到外部课程或项目时保留原始来源；后续引入第三方代码时记录来源版本及其许可。
 

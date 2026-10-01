@@ -1,24 +1,26 @@
-# W2 第一段备课：线程怎样覆盖数组
+# W2 第一段学习指南：线程怎样覆盖数组
 
-[单元范围](README.md) · [三段导学](study-guide.md) · [资料复核](refresh-2026-10-01.md)
+[单元范围](README.md) · [三段学习导航](study-guide.md) · [资料复核](refresh-2026-10-01.md)
 
-备课日期：2026-10-01。资料预算：60 分钟。状态：备课已准备；学习练习与 GPU 运行待完成。
+整理日期：2026-10-01。原文选读预算：60 分钟。状态：学习指南已整理；学习练习与 GPU 运行待完成。
+
+本地图解、暂停题与核对另计入本单元的自查时段，完整时间见 [分项预算](../../docs/study-guide.md#time-budget)。
 
 ## 目标与先修
 
-从线程坐标推导数组下标，解释尾部线程为什么必须检查边界。先通过 W1 的类型、字节与连续布局检查；运行前另行确认 CUDA 编译器、驱动和最小 kernel，备课未验证这些条件。
+从线程坐标推导数组下标，解释尾部线程为什么必须检查边界。先通过 W1 的类型、字节与连续布局检查；运行前另行确认 CUDA 编译器、驱动和最小 kernel，学习指南未验证这些条件。
 
 ## 读哪里，在哪里停
 
 | 预算 | 原始来源与指定范围 | 停止点 |
 | --- | --- | --- |
-| 20 分钟 | [Jeremy Howard 视频](https://www.youtube.com/watch?v=nOxKexn3iBo)，配 [pmpp.ipynb 固定版本](https://github.com/gpu-mode/lectures/blob/77a8df418834e5789c12da23e7d2719e0efabef1/lecture_003/pmpp.ipynb) 的 rgb_to_grayscale_kernel、rgb_to_grayscale | 只追线程下标、尾部保护和启动配置；后续 CUDA matmul 不读 |
-| 20 分钟 | [Programming Model §1.2](https://docs.nvidia.com/cuda/cuda-programming-guide/01-introduction/programming-model.html) 与 [Writing SIMT Kernels §2.3.2](https://docs.nvidia.com/cuda/cuda-programming-guide/02-basics/writing-cuda-kernels.html) | 执行层级和 Thread Hierarchy 结束 |
-| 20 分钟 | [Intro to CUDA C++ §2.1.2](https://docs.nvidia.com/cuda/cuda-programming-guide/02-basics/intro-to-cuda-cpp.html) | 启动语法、下标与尾部保护；后续内存管理留到下一段 |
+| 20 分钟 | [Jeremy Howard 视频](../../resources/README.md#x-cuda)，配 [pmpp.ipynb 固定版本](../../resources/README.md#x-cuda) 的 rgb_to_grayscale_kernel、rgb_to_grayscale | 只追线程下标、尾部保护和启动配置；后续 CUDA matmul 不读 |
+| 20 分钟 | [Programming Model §1.2](../../resources/README.md#r-cuda) 与 [Writing SIMT Kernels §2.3.2](../../resources/README.md#r-cuda) | 执行层级和 Thread Hierarchy 结束 |
+| 20 分钟 | [Intro to CUDA C++ §2.1.2](../../resources/README.md#r-cuda) | 启动语法、下标与尾部保护；后续内存管理留到下一段 |
 
 访问日为 2026-10-01。视频时间轴未核验，讲义用于定位；找不到对应视频片段就按文档完成预算。
 
-## 中文助读
+## 概念说明
 
 host 提交 kernel；一个 grid 含多个 block，每个 block 含线程。1D 下标是 block 编号乘 block 大小，再加线程局部编号。warp 是硬件执行分组，不能把一个 block 永远当成一个 warp。
 
@@ -31,11 +33,39 @@ host 提交 kernel；一个 grid 含多个 block，每个 block 含线程。1D �
 
 卡住时先解释“局部编号”和“全局编号”，再手画两个 block，最后回 §2.3.2 核对。
 
+## 读图与自查
+
+```text
+block 编号             0              1              2
+threadIdx.x          0 1 2 3        0 1 2 3        0 1 2 3
+全局下标             0 1 2 3        4 5 6 7        8 9 × ×
+长度 10：× 对应 10、11，已启动，但不能访问数组
+```
+
+这是索引示意，block=4 用于手算，不是性能推荐值。沿任意一列验证“全局下标=blockIdx.x×blockDim.x+threadIdx.x”。
+
+<details>
+<summary>写下预测后，再核对本段问题</summary>
+
+**题 1**：只用 threadIdx.x 时，三个 block 会重复处理 0～3，漏掉后面的元素。正确下标加上各 block 的起始位置。
+
+**题 2**：每 block 4 线程，长度 9 启动 3 个 block，有 3 个无效线程；长度 12 同样启动 3 个 block，没有无效线程。换 block 大小会改变覆盖分组，正确保护边界后数学输出不变。用 CPU 模拟逐项标记访问次数，有效下标应各为 1，越界下标应为 0。
+
+这些说明用于核对推导；运行结果仍需自己验证。答错时保留原答案，回看本段“读哪里”或“卡点”指向的位置，再换一个小输入重做。
+
+</details>
+
+## 可选：问 AI
+
+先独立作答和核对，仍有疑问时再使用；跳过本节不影响完成本段。
+
+> 我为长度【N】、block 大小【数值】画了索引表：【粘贴】。请检查漏算、重复和越界，先让我解释一个可疑格子。再给一个非整除长度让我重画。不要提供完整 CUDA 程序，也不要把 block 和 warp 当成同一个概念。
+
 ## 动手与检查
 
-唯一入口：`labs/02-cuda/vector-add/`。动手时建立 `vector_add.cu`，先写 CPU 逐元素参考，再写同 dtype 的 CUDA 路径。第一段先测长度 1、10、12、257；包含正负数，逐元素检查，不能只比较总和。
+实验目录：`labs/02-cuda/vector-add/`。先用 CPU 循环模拟线程编号，检查长度 1、10、12、257 的覆盖，再写 CPU 逐元素参考和 `vector_add.cu` 中的 kernel、启动配置草稿。输入包含正负数，逐元素比较，不能只比较总和。
 
-固定输入和 FP32，暂只选择一种 block 大小。打印小输入及预期索引表；学习代码必须独立处理尾部。GPU 不可用时保存纸面表，实际正确性仍待验证。内存路径与可靠计时分别在后两段补齐。
+固定输入和 FP32，暂只选择一种 block 大小。打印小输入及索引表，检查有效下标恰好覆盖一次。第一段先完成索引练习；第二段学完分配、拷贝与同步后，再把草稿接成完整 GPU 程序并验证输出，第三段学习计时。
 
 ## 卡点与过关
 
@@ -45,7 +75,7 @@ host 提交 kernel；一个 grid 含多个 block，每个 block 含线程。1D �
 | 混淆 block/warp | §1.2 与 §2.3.2 | 用自己的 block 大小说明执行层级 |
 
 - [ ] 独立推导下标与启动数量。
-- [ ] 小数组与非整除输入逐元素对齐。
+- [ ] CPU 索引模拟覆盖小数组与非整除输入，没有遗漏或重复。
 - [ ] GPU 环境与未验证项如实记录。
 
 在实验 `notes.md` 的 `W2-S01` 保存实际阅读位置、预测、完整命令、结果解释和一个未解决问题；通过后进入 [第二段](session-02.md)。

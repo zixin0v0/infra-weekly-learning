@@ -11,7 +11,7 @@
 | `distributed-training-lab/` | W7、W11～W12、W14 | 通信、DDP、FSDP2 与并行切分 | 公平对照、显存/通信分析、checkpoint 恢复 |
 | `mini-gpu-scheduler/` | W15～W16 | Ray 执行与队列策略 | 固定任务轨迹，解释排队、公平性与完成时间 |
 
-结构和归档约定见 [文件管理](../docs/repository-layout.md)，前八个学习位置的 [备课入口](../docs/first-eight-weeks.md) 独立于项目验收。
+结构和归档约定见 [文件管理](../docs/repository-layout.md)，前八个学习位置的 [学习指南入口](../docs/first-eight-weeks.md) 独立于项目验收。
 
 每个项目的 README 要有问题、架构、运行方式、实验配置、结果和局限。项目链接到 `labs/` 的已有实现；有新的编排入口时才在项目内新增代码。
 

@@ -4,7 +4,7 @@
 
 建议学习位置：第 8 个学习周。W7 是固定单元 ID，按下方导航推进。
 
-状态：未开始。预算：9 小时。环境：Linux 服务器，2 卡起步，再测 4 卡。
+状态：未开始。预算：约 10.5 小时（[分项](../../docs/study-guide.md#time-budget)）。环境：Linux 服务器，2 卡基础，4 卡选做。
 
 ## 本周要解决什么
 
@@ -14,11 +14,11 @@
 
 ## 按顺序学习
 
-先用30分钟看 [本周补充阅读](context.md)，按 [更新流程](../../docs/weekly-refresh.md) 核对资料。时间从原报告时段划出，总预算不变。
+先用 30 分钟按 [资料复核流程](../../docs/weekly-refresh.md) 核对必读材料、版本和运行条件。[补充阅读](context.md) 在基础完成后选读，单独安排时间.
 
-按 [章节导学](study-guide.md) 分三段学习，每段读完就动手。下面只列安排，具体链接、阅读位置和检查方法都在导学里。
+按 [分段学习指南](study-guide.md) 分三段学习，每段读完就动手。各段学习指南包含原文定位、图例、暂停题与折叠核对说明；先自行作答，再检查理由和运行结果。AI 理解提示词可以跳过，完成要求不依赖 AI 评价。
 
-备课已准备：[第一段](session-01.md) · [第二段](session-02.md) · [第三段](session-03.md)。[本次资料复核](refresh-2026-10-01.md) 已完成；学习未开始，实际开课日仍按更新流程复查。
+学习指南已整理：[第一段](session-01.md) · [第二段](session-02.md) · [第三段](session-03.md)。[本次资料复核](refresh-2026-10-01.md) 已完成；学习未开始，实际开始学习日仍按更新流程复查。
 
 | 学习段 | 指定范围 | 读后立即做 | 资料预算 |
 | --- | --- | --- | --- |
@@ -26,13 +26,13 @@
 | 2. 通信计量 | nccl-tests README 与 PERFORMANCE.md 指定项 | 2 卡正确性与消息扫描 | 60 分钟 |
 | 3. 成本与拓扑 | L7 hardware/benchmarking/all_reduce | 拓扑记录与曲线解释 | 45 分钟 |
 
-阅读共150分钟，包含视频、教程和论文。补充材料按需替换阅读内容；选修另排时间。
+原文选读共 150 分钟，本地图解与自查另计 60 分钟。材料元信息统一在资源索引；可选拓展另排时间。
 
 ## 遇到问题再看
 
-[GPU MODE lecture_017](https://github.com/gpu-mode/lectures/tree/main/lecture_017) 用于对照 NCCL 示例；若时间有限，先完成 nccl-tests 主线。
+示例与带宽列含义优先回 [NCCL 语义](../../resources/README.md#r-collective) 和 [nccl-tests](../../resources/README.md#r-nccl-tests) 的指定范围。
 
-通过 [单卡训练检查 D](../../docs/prerequisites.md) 后，可选 [PyTorch DDP 入门](https://docs.pytorch.org/tutorials/intermediate/ddp_tutorial.html)；否则移到 W11。
+通过 [单卡训练检查 D](../../docs/prerequisites.md) 后，可选 [PyTorch DDP 入门](../../resources/README.md#r-ddp)；否则移到 W11。
 
 ## 实践任务
 
@@ -50,7 +50,7 @@
 - [ ] 图表区分延迟、algbw 和 busbw。
 - [ ] 能解释至少一项通信开销；4 卡和 DDP 扩展未做时单独标记，不用估算补数据。
 
-- [ ] 按补充阅读的要求，在报告中解释一个实际使用问题，注明哪些结论还没验证。
+可选：完成基础后，从补充阅读选一个实际问题写进报告；未选不影响本单元完成。
 
 ## 实验记录
 

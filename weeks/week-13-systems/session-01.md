@@ -1,8 +1,10 @@
-# W13 第一段备课：编译前后的语义对齐
+# W13 第一段学习指南：编译前后的语义对齐
 
-[单元范围](README.md) · [三段导学](study-guide.md) · [资料复核](refresh-2026-10-01.md)
+[单元范围](README.md) · [三段学习导航](study-guide.md) · [资料复核](refresh-2026-10-01.md)
 
-备课日期：2026-10-01。资料预算：45 分钟。状态：备课已准备；目标环境与编译运行待验证。
+整理日期：2026-10-01。原文选读预算：45 分钟。状态：学习指南已整理；目标环境与编译运行待验证。
+
+本地图解、暂停题与核对另计入本单元的自查时段，完整时间见 [分项预算](../../docs/study-guide.md#time-budget)。
 
 ## 目标与先修
 
@@ -12,13 +14,13 @@
 
 | 预算 | 原始来源与指定范围 | 停止点 |
 | --- | --- | --- |
-| 15 分钟 | [CS336 L6 视频](https://www.youtube.com/watch?v=xnDHaNUvHBg)，配 [固定讲义](https://github.com/stanford-cs336/lectures/blob/de53a9f979a6ee35f7d13a5e1aadee5ea1afc58e/lecture_06.py) 的 naive_vs_builtin_vs_compiled_gelu | 只理解三组比较方法，不新增 GELU 项目 |
-| 20 分钟 | [torch.compile 教程](https://docs.pytorch.org/tutorials/intermediate/torch_compile_tutorial.html) 的 Basic Usage | 函数/模块包装与调用结束 |
+| 15 分钟 | [CS336 L6 视频](../../resources/README.md#r-l6)，配 [固定讲义](../../resources/README.md#r-l6) 的 naive_vs_builtin_vs_compiled_gelu | 只理解三组比较方法，不新增 GELU 项目 |
+| 20 分钟 | [torch.compile 教程](../../resources/README.md#r-compile) 的 Basic Usage | 函数/模块包装与调用结束 |
 | 10 分钟 | 对照自己的 W5 表达式或 W6 Block | 列出输入、dtype、dropout、autograd 与误差约定 |
 
 访问日：2026-10-01。教程环境显示 2.14.0+cu130，实际环境另记录；视频函数定位不代表已核验时间轴。
 
-## 中文助读
+## 概念说明
 
 compile 可以捕获、优化和生成执行代码，但不改变实验应比较的数学目标。编译包装与首次真实调用不是同一时间边界。融合、kernel 数和整体延迟是不同证据，先把输出对齐作为前提。
 
@@ -31,9 +33,37 @@ compile 可以捕获、优化和生成执行代码，但不改变实验应比较
 
 先列调用阶段，再列数学与运行条件，最后回 Basic Usage。
 
+## 读图与自查
+
+```text
+同一输入 X、同一组参数 θ
+        ├→ eager 路径 ─────────→ Y_eager ┐
+        └→ compile 包装 → 首次调用 → Y_comp ├→ 比较误差
+同样的 dtype / eval / dropout / autograd ┘
+```
+
+图中先比较输出，再进入下一段的计时。包装函数与真正给输入执行是两个步骤；不能把包装耗时当成完整编译成本。
+
+<details>
+<summary>写下预测后，再核对本段问题</summary>
+
+**题 1**：包装阶段很短也可能尚未完成实际捕获和代码生成，首次遇到真实输入时才支付这些成本。需要把包装、首次调用与后续调用分别记录。
+
+**题 2**：train/eval 可能改变 dropout 或某些模块行为，输出不同不能先归因于编译器。还需对齐参数、输入、随机状态、dtype、autograd、后端与数值容差。若条件不一致，回到图中公共输入处逐项检查。
+
+这些说明用于核对推导；运行结果仍需自己验证。答错时保留原答案，回看本段“读哪里”或“卡点”指向的位置，再换一个小输入重做。
+
+</details>
+
+## 可选：问 AI
+
+先独立作答和核对，仍有疑问时再使用；跳过本节不影响完成本段。
+
+> 我的 eager/compile 对照条件是【输入、参数、dtype、eval、dropout、autograd 和容差】，结果为【误差或报错】。请先检查是否在比较同一计算，只追问一个缺失条件，再建议最小核对步骤。不要直接重写模型或承诺编译必然加速。
+
 ## 动手与检查
 
-唯一实验入口：`labs/03-triton-attention/systems-study/`，引用 W5/W6 实现，不复制一份 Block。动手时加入 `compare_compile.py` 的编排入口，固定一组 shape 与随机输入。
+实验目录：`labs/03-triton-attention/systems-study/`，引用 W5/W6 实现，不复制一份 Block。动手时加入 `compare_compile.py` 的编排入口，固定一组 shape 与随机输入。
 
 保存实际 Python/PyTorch/Triton/CUDA、设备与 compile 配置，检查输出最大绝对/相对误差；先设容差，再核对。主线前向 eval、dropout=0，autograd 是否关闭按 W6 对齐。编译失败保留错误和 eager 基线，修环境另计，不把失败写成速度 0。
 

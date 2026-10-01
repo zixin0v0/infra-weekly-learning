@@ -1,8 +1,10 @@
-# W3 第一段备课：归约树与 block 同步
+# W3 第一段学习指南：归约树与 block 同步
 
-[单元范围](README.md) · [三段导学](study-guide.md) · [资料复核](refresh-2026-10-01.md)
+[单元范围](README.md) · [三段学习导航](study-guide.md) · [资料复核](refresh-2026-10-01.md)
 
-备课日期：2026-10-01。资料预算：45 分钟。状态：备课已准备；学习实现与检查待完成。
+整理日期：2026-10-01。原文选读预算：45 分钟。状态：学习指南已整理；学习实现与检查待完成。
+
+本地图解、暂停题与核对另计入本单元的自查时段，完整时间见 [分项预算](../../docs/study-guide.md#time-budget)。
 
 ## 目标与先修
 
@@ -12,14 +14,14 @@
 
 | 预算 | 原始来源与指定范围 | 停止点 |
 | --- | --- | --- |
-| 25 分钟 | [shared_reduce.cu 固定版本](https://github.com/gpu-mode/lectures/blob/77a8df418834e5789c12da23e7d2719e0efabef1/lecture_009/shared_reduce.cu) 的 SharedMemoryReduction | 加载、stride 循环、同步与输出；核对固定启动条件后停 |
-| 20 分钟 | [Writing SIMT Kernels §2.3.2.1](https://docs.nvidia.com/cuda/cuda-programming-guide/02-basics/writing-cuda-kernels.html) | block 同步语义结束，画自己的读写依赖 |
+| 25 分钟 | [shared_reduce.cu 固定版本](../../resources/README.md#r-reduce) 的 SharedMemoryReduction | 加载、stride 循环、同步与输出；核对固定启动条件后停 |
+| 20 分钟 | [Writing SIMT Kernels §2.3.2.1](../../resources/README.md#r-cuda) | block 同步语义结束，画自己的读写依赖 |
 
-访问日：2026-10-01。源码固定 BLOCK_DIM=1024、单 block 处理 2048 个元素，不是通用多 block 实现。树仍不直观时用 [Reduction #3](https://developer.download.nvidia.com/assets/cuda/files/reduction.pdf) 阅读器第 14～15 页替换前 15 分钟；旧隐式 warp 同步不作现代模板。
+访问日：2026-10-01。源码固定 BLOCK_DIM=1024、单 block 处理 2048 个元素，不是通用多 block 实现。树仍不直观时用 [Reduction #3](../../resources/README.md#r-reduce) 阅读器第 14～15 页替换前 15 分钟；旧隐式 warp 同步不作现代模板。
 
-## 中文助读
+## 概念说明
 
-SUM 的空位填 0。每个 block 先归约自己的数据，再由统一第二阶段组合部分和；后续两个版本必须复用同一收尾方法。线程即使没有有效输入，也要参与该 block 所需的 barrier，不能提前退出而留下其他线程等待。
+SUM 的空位填 0。每个 block 先归约自己的数据，主线将部分和拷回 CPU，用同一个 FP64 求和函数得到最终值。这样先学清 block 内同步，多级 GPU 归约留作扩展。线程即使没有有效输入，也要参与该 block 所需的 barrier，不能提前退出而留下其他线程等待。
 
 ```mermaid
 flowchart LR
@@ -35,11 +37,43 @@ flowchart LR
 1. 对 [1,-2,3,4,-5,6,7,-8] 逐轮画树并算最终值；改变配对顺序会影响 FP32 舍入吗？
 2. 最后一个 block 不满时，哪些线程仍要走到 barrier？为何不能只对有效线程调用同步？
 
-先提示“本轮读上一轮谁的值”，再用四元素例子画依赖，最后回同步小节。
+卡住时先问自己：“本轮读上一轮谁的值”，再用四元素例子画依赖，最后回同步小节。
+
+## 读图与自查
+
+```text
+一种相邻配对的逻辑树（数值仅用于手算）
+[ 1, -2,  3,  4, -5,  6,  7, -8 ]
+   ↓       ↓       ↓       ↓
+[ -1,      7,      1,     -1 ]
+       ↓               ↓
+[      6,              0 ] → 6
+```
+
+图只画相邻配对。阅读源码可能采用前半与后半配对，两者中间值不同；必须按自己代码的配对顺序另画一遍，不能只对照最终的 6。
+
+<details>
+<summary>写下预测后，再核对本段问题</summary>
+
+**题 1**：整数小例的和为 6。FP32 的加法不满足严格结合律，换配对顺序可能改变舍入；本例小整数恰好可精确表示，不能证明任意浮点输入都一样。
+
+**题 2**：尾 block 的所有线程仍执行约定的 block barrier，无效加载用 0。若只有有效线程进入 barrier，其余线程绕过，程序不满足本段同步条件。N=513、每 block 512 元素时应输出两个部分和：第一个覆盖 0～511，第二个只包含索引 512 的值，再由 CPU 收尾。
+
+这些说明用于核对推导；运行结果仍需自己验证。答错时保留原答案，回看本段“读哪里”或“卡点”指向的位置，再换一个小输入重做。
+
+</details>
+
+## 可选：问 AI
+
+先独立作答和核对，仍有疑问时再使用；跳过本节不影响完成本段。
+
+> 这是我的八元素归约树和每轮读写表：【粘贴】。请先检查某一轮是否读取了尚未写完的数据，再给一个尾 block 只有一个有效元素的情况让我解释。不要代写 kernel；请区分 block 内同步与 block 间收尾。
 
 ## 动手与检查
 
-唯一入口：`labs/02-cuda/reduction/`。先手算，再写 shared-memory 版本，每 block 输出一个部分和。自己补 block offset、尾部填零和多 block 收尾；边界可用 1、8、257、block 覆盖量前后各一值。
+实验目录：`labs/02-cuda/reduction/`。先手算，再写 shared-memory 版本，每 block 输出一个部分和。起步固定 256 线程，每线程加载最多两个值，一个 block 覆盖 512 个元素；两次读取分别做边界检查，越界值用 0。修改阅读示例的固定配置，补上 block offset；测试 1、8、257、511、512、513 个元素。先逐 block 对照 FP64 区间和，再用共同的 CPU 收尾核对整数组结果。
+
+两版性能主表只计 GPU 第一阶段，部分和的 D2H 与 CPU 收尾不计入该列；若测完整流程，另列包含它们的端到端时间。不能将第一阶段时间称为完整 Reduce 延迟。
 
 输入含负数，固定 FP32 输入与累加策略，用 FP64 sum 或可靠库参考检查绝对/相对误差；接近零的结果不能只看相对误差。先 memcheck 再计时，保存大小、容差、实际误差与命令；无需一开始优化多个配置。
 

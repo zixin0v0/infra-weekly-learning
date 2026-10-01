@@ -12,7 +12,7 @@
 | `06-training/` | 11～12、14 | DDP、FSDP2、并行切分 |
 | `07-scheduling/` | 15～16 | Ray 执行、排队与调度策略 |
 
-备课保存在各周 `session-XX.md`，学习作答在本实验 `notes.md` 按段号追加；同周三段复用一个目录。日期与原始数据归档规范见 [文件管理](../docs/repository-layout.md)。
+学习指南保存在各周 `session-XX.md`，学习作答在本实验 `notes.md` 按段号追加；同周三段复用一个目录。日期与原始数据归档规范见 [文件管理](../docs/repository-layout.md)。
 
 ## 单个实验的约定
 

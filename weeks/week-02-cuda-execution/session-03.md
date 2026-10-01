@@ -1,8 +1,10 @@
-# W2 第三段备课：可靠计时与有效带宽
+# W2 第三段学习指南：可靠计时与有效带宽
 
-[单元范围](README.md) · [三段导学](study-guide.md) · [资料复核](refresh-2026-10-01.md) · [上一段](session-02.md)
+[单元范围](README.md) · [三段学习导航](study-guide.md) · [资料复核](refresh-2026-10-01.md) · [上一段](session-02.md)
 
-备课日期：2026-10-01。资料预算：45 分钟。状态：备课已准备；真实测量待完成。
+整理日期：2026-10-01。原文选读预算：45 分钟。状态：学习指南已整理；真实测量待完成。
+
+本地图解、暂停题与核对另计入本单元的自查时段，完整时间见 [分项预算](../../docs/study-guide.md#time-budget)。
 
 ## 目标与先修
 
@@ -12,13 +14,13 @@
 
 | 预算 | 原始来源与指定范围 | 停止点 |
 | --- | --- | --- |
-| 20 分钟 | [CUDA Best Practices §9.1.2](https://docs.nvidia.com/cuda/cuda-c-best-practices-guide/index.html) Using CUDA GPU Timers | Event 创建、记录、完成与 elapsed time 示例结束 |
+| 20 分钟 | [CUDA Best Practices §9.1.2](../../resources/README.md#r-best) Using CUDA GPU Timers | Event 创建、记录、完成与 elapsed time 示例结束 |
 | 15 分钟 | 同页 §9.2 Bandwidth，重点 Effective Bandwidth Calculation | 读写字节与时间的单位换算结束 |
-| 10 分钟 | [Intro to CUDA C++ §2.1.4](https://docs.nvidia.com/cuda/cuda-programming-guide/02-basics/intro-to-cuda-cpp.html) | 回看异步完成，画两种计时区间后停 |
+| 10 分钟 | [Intro to CUDA C++ §2.1.4](../../resources/README.md#r-cuda) | 回看异步完成，画两种计时区间后停 |
 
 访问日：2026-10-01。Best Practices 页标 13.4；这是阅读版本，实际 CUDA 版本待记录。
 
-## 中文助读
+## 概念说明
 
 FP32 Vector Add 每元素逻辑上读两次、写一次，有效字节数为 12N。若只计 kernel，`GB/s = 12N / 秒 / 10^9`。这衡量完成这些逻辑读写的速度；缓存与实际事务会让它不同于 DRAM 硬件计数器值。
 
@@ -31,18 +33,39 @@ kernel 区间使用同 stream 的 Event 并等结束事件完成；端到端区�
 
 先写单位链，再区分“提交”和“完成”，最后回 §9.1.2 与 §9.2。
 
+## 读图与自查
+
+```text
+时间向右 →
+GPU 同一 stream：H2D → start Event → kernel → stop Event → D2H
+                         └── kernel 区间 ──┘
+CPU 端到端计时：开始 ─────────────────────────── 等 D2H 完成 → 结束
+```
+
+这是依赖和计时范围示意，不按耗时比例绘制。读取 Event 耗时前要等 stop 完成；此处端到端约定不含预先分配。
+
+<details>
+<summary>写下预测后，再核对本段问题</summary>
+
+**题 1**：逻辑读写=3×1000×4=12,000 字节；10 微秒=0.00001 秒，带宽=1.2 GB/s。若把以毫秒表示的时间数值直接当秒代入，带宽会小 1000 倍。
+
+**题 2**：小输入仍有提交、同步、拷贝等成本，kernel 很快并不意味着整个调用很快。反复使用相同数据可能命中缓存，有效带宽不是冷缓存 DRAM 计数。先在图上标清区间，再解释两条曲线，不能混合单位或删除慢的一组。
+
+这些说明用于核对推导；运行结果仍需自己验证。答错时保留原答案，回看本段“读哪里”或“卡点”指向的位置，再换一个小输入重做。
+
+</details>
+
+## 可选：问 AI
+
+先独立作答和核对，仍有疑问时再使用；跳过本节不影响完成本段。
+
+> 我的 kernel 和端到端计时图是【粘贴】，带宽计算为【带单位的公式】。请先检查异步完成点与单位，再让我解释两组数据为什么不同。不要假设我的 GPU 带宽，也不要用教程数字替代测量。
+
 ## 动手与检查
 
 继续 `labs/02-cuda/vector-add/`。固定 dtype、block 大小和输入内容；至少四个规模，例如 257、4096、65536、1048576，先确认实际显存可容纳。完成正确性后预热，按 [测量约定](../../docs/learning-workflow.md) 至少三组独立测量，组内重复数与同步方法写进配置。
 
 分别保存 kernel 与端到端每次原始时间、有效字节数、汇总方式与曲线。短 kernel 可重复启动后除以次数，同时说明该平均包含的开销。sanitizer/profiler 采样独立运行；不把工具耗时混进正式数据。
-
-<details>
-<summary>先预测，再核对纸面值</summary>
-
-12,000 字节 / 0.00001 秒 = 1.2×10^9 B/s，即 1.2 GB/s；它不是本机测量。
-
-</details>
 
 ## 卡点与过关
 

@@ -4,7 +4,7 @@
 
 建议学习位置：第 6 个学习周。W6 是固定单元 ID，按下方导航推进。
 
-状态：未开始。预算：9 小时。环境：本地 GPU，小型 Decoder Block。
+状态：未开始。预算：约 12.5 小时（[分项](../../docs/study-guide.md#time-budget)）。环境：本地 GPU，小型 Decoder Block。
 
 ## 本周要解决什么
 
@@ -14,11 +14,11 @@
 
 ## 按顺序学习
 
-先用30分钟看 [本周补充阅读](context.md)，按 [更新流程](../../docs/weekly-refresh.md) 核对资料。时间从原报告时段划出，总预算不变。
+先用 30 分钟按 [资料复核流程](../../docs/weekly-refresh.md) 核对必读材料、版本和运行条件。[补充阅读](context.md) 在基础完成后选读，单独安排时间.
 
-按 [章节导学](study-guide.md) 分三段学习，每段读完就动手。下面只列安排，具体链接、阅读位置和检查方法都在导学里。
+按 [分段学习指南](study-guide.md) 分三段学习，每段读完就动手。各段学习指南包含原文定位、图例、暂停题与折叠核对说明；先自行作答，再检查理由和运行结果。AI 理解提示词可以跳过，完成要求不依赖 AI 评价。
 
-备课已准备：[第一段](session-01.md) · [第二段](session-02.md) · [第三段](session-03.md)。[本次资料复核](refresh-2026-10-01.md) 已完成；学习未开始，实际开课日仍按更新流程复查。
+学习指南已整理：[第一段](session-01.md) · [第二段](session-02.md) · [第三段](session-03.md)。[本次资料复核](refresh-2026-10-01.md) 已完成；学习未开始，实际开始学习日仍按更新流程复查。
 
 | 学习段 | 指定范围 | 读后立即做 | 资料预算 |
 | --- | --- | --- | --- |
@@ -26,19 +26,19 @@
 | 2. IO 与分块 | FlashAttention §2.1～2.2、§3.1～3.2、Algorithm 1 | 资源账本与数据路径图 | 50 分钟 |
 | 3. 模型时间线 | Profiler 步骤 3/4 和 trace；Nsight CUDA Trace | Block 算子表与时间线 | 60 分钟 |
 
-阅读共150分钟，包含视频、教程和论文。补充材料按需替换阅读内容；选修另排时间。
+原文选读共 150 分钟，本地图解与自查另计 90 分钟。材料元信息统一在资源索引；可选拓展另排时间。
 
 ## 遇到问题再看
 
-作者机构博客：[FlashAttention-2](https://crfm.stanford.edu/2023/07/17/flash2.html)，用于理解 IO 优化后为何还要优化工作划分；替换 30 分钟阅读。
+作者机构博客：[FlashAttention-2](../../resources/README.md#x-fa2)，用于理解 IO 优化后为何还要优化工作划分；基础完成后另排 30 分钟。
 
-视频可复看 [CS336 2026 Lecture 6](https://www.youtube.com/watch?v=xnDHaNUvHBg) 的相关部分。本周主线是论文加模型测量，不增加整讲观看任务。
+视频可复看 [CS336 2026 Lecture 6](../../resources/README.md#r-l6) 的相关部分。本周主线是论文加模型测量，不增加整讲观看任务。
 
 ## 实践任务
 
 建议目录：labs/03-triton-attention/decoder-profiling/。
 
-1. 选一个小型 Decoder Block，写明 batch、序列长度、隐藏维度、头数和 dtype。主线只分析固定形状的前向，明确 eval、dropout 和 autograd 状态；backward 留作扩展。
+1. 按 [第二段的结构图](session-02.md) 建立小型 pre-norm Decoder Block，写明 batch、序列长度、隐藏维度、头数和 dtype。主线只分析固定形状的前向，明确 eval、dropout 和 autograd 状态；backward 留作扩展。
 2. 估算参数、Attention/MLP FLOPs 与显存项，再采集算子耗时。
 3. 比较显式 Attention 与 PyTorch SDPA：统一 causal mask、dropout、输入与 dtype，检查输出误差。
 4. 记录实际选到的 SDPA 后端；无法确认时写“未确认”，不将所有 SDPA 结果都称为 FlashAttention。
@@ -52,7 +52,8 @@
 - [ ] 明确前向或训练计时范围，两个实现语义一致。
 - [ ] 有算子表、原始测量和一段时间线，能区分热点算子与等待时间。
 - [ ] 能解释分块与在线 Softmax 的联系；本周不要求完整实现 FlashAttention2。
-- [ ] 按补充阅读的要求，在报告中解释一个实际使用问题，注明哪些结论还没验证。
+
+可选：完成基础后，从补充阅读选一个实际问题写进报告；未选不影响本单元完成。
 
 ## 实验记录
 

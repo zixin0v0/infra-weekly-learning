@@ -1,14 +1,52 @@
-# W9 章节导学：分页机制与前缀复用实验
+# W9 分段学习指南：分页机制与前缀复用实验
 
-[本周范围与验收](README.md) · [导学规则](../../docs/study-guide.md) · [当前做法与相关进展](context.md)
+[本周范围与验收](README.md) · [自学规则](../../docs/study-guide.md) · [当前做法与相关进展](context.md)
 
-资料预算：60 + 45 + 45 = 150 分钟。理论学习分页，实验测 APC；两个问题分别保留证据。
+原文选读预算：60 + 45 + 45 = 150 分钟；本地例子与自查另计 60 分钟，动手与正确性检查 240 分钟。含资料复核、分析和报告，本单元约 10.5 小时，详见 [时间表](../../docs/study-guide.md#time-budget)。
+
+## 学习目标与前置检查
+
+本单元知识点：KV 字节、逻辑/物理块、碎片、共享与 APC。学完应当能手算 KV 容量、追踪块表，并设计冷/热缓存对照而不混淆生成质量。
+
+**开始前检查**：通过 W8 单请求与 token 长度核对；理解 W1 字节计算。能区分层数、query heads 与 KV heads。 缺项按 [基础补学入口](../../docs/prerequisites.md) 的材料、范围和练习完成；补学时间另计。
+
+<details>
+<summary>前置问题核对</summary>
+
+GQA 的 KV 容量使用 KV heads；输出 token 数和字符数不可互换。若分不清先回 W8 第一段。
+
+</details>
+
+资源的难度、语言、前置要求、原始 URL 和停止位置统一保存在 [资源索引](../../resources/README.md)，下文按学习顺序链接。先读必读范围，卡点材料替换复习时间，可选拓展不影响基础完成。
 
 ## 1. 先算容量，再理解为什么分页（60 分钟）
 
-**先读**：[PagedAttention PDF](https://arxiv.org/pdf/2309.06180) §3、§4.1、§4.2。分别定位内存浪费、按块访问以及 KV Cache Manager，不先读全部性能评估。
+资源定位：[KV 容量、分页和共享](../../resources/README.md#r-paged)。
+
+**先读**：[PagedAttention PDF](../../resources/README.md#r-paged) §3、§4.1、§4.2。分别定位内存浪费、按块访问以及 KV Cache Manager，不先读全部性能评估。
 
 **接着想一想**：从 W1 的元素字节数与 W8 的 KV 语义出发，按层数、KV 头数、head dimension 和 token 数写容量公式；GQA 使用 KV 头数，不使用 query 头数代替。
+
+**例子与图解：先算容量，再读分页论文**
+
+单请求 KV 数据字节为 2×层数 L×KV heads×head_dim×缓存 token 数 S×每元素字节；2 对应 K 与 V。暂不计元数据、padding、量化 scale 或其他缓冲。这个公式描述存储对象，不是服务进程全部显存。
+
+| 手算项 | 值 |
+| --- | --- |
+| L、KV heads、head_dim | 2、2、4 |
+| S、dtype | 5、FP16（2 字节） |
+| 有效 KV 字节 | 2×2×2×4×5×2 = 320 |
+| 每块 4 token，需 2 块 | 容量 8 token，共 512 字节 |
+| 尾块暂未用容量 | 3 token，共 192 字节 |
+
+**暂停题**：若 query heads 从 2 改成 4，但 KV heads 仍为 2，上表有效 KV 是否翻倍？为什么不用申请一个最大序列的连续大区域？
+
+<details>
+<summary>核对依据</summary>
+
+不会因 query heads 单独改变而翻倍；公式使用 KV heads。分页让逻辑连续序列映射到可分散的物理块，按增长分配并减少大区域预留浪费；不能因此声称没有尾块碎片或任何元数据成本。
+
+</details>
 
 **动手练习**：给 2 个不同长度的请求画逻辑块到物理块的表，再画各增加 1 个 token 后的变化。写一个纯计算的小脚本，检查块大小与末块浪费的关系；这是容量模型，不是分配器性能复现。
 
@@ -16,9 +54,31 @@
 
 ## 2. 共享哪些内容，什么时候需要复制（45 分钟）
 
+资源定位：[KV 容量、分页和共享](../../resources/README.md#r-paged)。
+
 **先读**：同一论文 §4.3 的基本解码流程和 §4.4 开头的 parallel sampling / copy-on-write 案例。读到能更新块表和引用计数即可，beam search 的完整执行细节作为进阶。
 
-**配套视频**：[CS336 Lecture 10](https://www.youtube.com/watch?v=EfM546A79aM) 配 [讲义](https://github.com/stanford-cs336/lectures/blob/main/lecture_10.py) 的 `paged_attention`，用于图解仍不清楚时，替换本段部分阅读。
+**配套视频**：[CS336 Lecture 10](../../resources/README.md#r-inference) 配 [讲义](../../resources/README.md#r-inference) 的 `paged_attention`，用于图解仍不清楚时，替换本段部分阅读。
+
+**例子与图解：逻辑块不等于物理位置**
+
+~~~text
+请求 A：逻辑块 0 → 物理块 7（token 0..3）
+        逻辑块 1 → 物理块 2（token 4，剩余位置空）
+请求 B：逻辑块 0 → 物理块 7（共享不变前缀）
+        逻辑块 1 → 物理块 9（不同续写）
+~~~
+
+表中的数字是示意块号，不是 GPU 地址。读请求 A 的第 4 号 token 时，先用逻辑块号 1 查表，再访问块内偏移 0。
+
+**暂停题**：若两个请求共享的尾块里只写了 3 个 token，接下来各生成不同 token，能直接在原共享块写入吗？
+
+<details>
+<summary>核对依据</summary>
+
+不能让一方覆写另一方仍需读取的前缀。论文的共享与 copy-on-write 机制会为需要独立修改的路径建立副本或独立块，再更新映射；完全填满且不变的前缀块可继续共享。实际 vLLM APC 的缓存粒度与支持条件按本机版本文档核对，论文示意不保证当前实现共享所有部分块。
+
+</details>
 
 **动手练习**：手工更新“相同前缀、不同续写”的块表，指出共享、分叉和释放各涉及什么。随后拟定共同前缀与独立前缀的两组输入，检查 token IDs，而不是只比较肉眼相似的文本。
 
@@ -26,16 +86,37 @@
 
 ## 3. 把机制解释变成可证伪的 APC 对照（45 分钟）
 
-**先读**：[Automatic Prefix Caching](https://docs.vllm.ai/en/latest/features/automatic_prefix_caching/) 的 `Introduction`、`Enabling APC in vLLM`、`Example workloads`。重点判断哪些重复 prefill 有机会被省下；直接作用不在新 token 的 decode 计算。
+资源定位：[前缀复用的条件与限制](../../resources/README.md#r-apc)。
+
+**先读**：[Automatic Prefix Caching](../../resources/README.md#r-apc) 的 `Introduction`、`Enabling APC in vLLM`、`Example workloads` 和 `Limits`。重点判断哪些重复 prefill 有机会被省下；直接作用不在新 token 的 decode 计算。
 
 **接着想一想**：复用 W8 的模型与负载，只改变 APC、前缀复用或冷/热条件中的一个因素。先写实验矩阵，再运行；“已发过请求”不自动等于“已证实命中缓存”。
+
+**暂停题：怎样判断是前缀复用的收益**
+
+两次请求的“问题意思相同”，是否必然命中？一次热缓存比另一次冷缓存快，是否足够证明 APC 有效？
+
+<details>
+<summary>核对依据</summary>
+
+不必然。需要相同的可缓存 token 前缀及匹配的缓存条件，文字含义相同不等于 token 前缀相同。先保存输入 IDs/模板与公共前缀长度，再固定模型、长度、到达方式和采样设置，安排 APC 开/关与冷/热状态对照，重复并记录命中及 TTFT。APC 主要复用前缀 prefill 计算，不会直接省去每个输出 token 的 decode。显存占用下降也不是命中的必要表现；缓存池可能保留分配。
+
+</details>
 
 **动手练习**：分别记录首次与复用请求，确认清理方法，必要时重启服务；寻找匹配版本提供的复用指标或日志。保存实际输入长度、TTFT、TPOT 和失败数。
 
 **完成后检查**：能说明实验支持的是前缀复用效果，不能用 APC 开关隔离 PagedAttention 分配器贡献；无命中证据时，机制归因仍标待验证。
 
-## 课后整理与选修
+## 独立完成与可选 AI 帮助
+
+三段都先遮住答案作答，再核对推导；答错保留原答案，回资源卡指定小节，用不同输入重做。每段“检查结果”连同 [单元完成标准](README.md) 都需要真实笔记或运行记录支持。纸面例子正确只能说明该例的理解，不能替代实验。记录在本单元实验目录的 notes.md，按 W9-S01～S03 分节。
+
+可选提示词：
+
+> 我正在学习 W9 的KV 字节。我的推导是【粘贴】，我与本段核对说明不同的一步是【填写】。请只用本段的小例子检查这一步，给一个改变单项条件的反例，先让我回答。不要假设我做过实验，也不要用未核验的接口填补解释。
+
+## 整理记录与可选拓展
 
 在 `labs/05-serving/prefix-cache/` 保存容量脚本、块表、请求组与实验报告，交给 W10 作为一种受控场景。
 
-卡点补充：[vLLM 作者博客](https://vllm.ai/blog/2023-06-20-vllm) 中按逻辑块/物理块说明的段落，用于补图解，历史速度数字不作目标。进阶只改变共享前缀比例，观察收益条件。
+卡点补充：[vLLM 作者博客](../../resources/README.md#r-paged) 中按逻辑块/物理块说明的段落，用于补图解，历史速度数字不作目标。进阶只改变共享前缀比例，观察收益条件。
