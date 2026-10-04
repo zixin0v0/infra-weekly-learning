@@ -1,38 +1,32 @@
 # 单元 W7：集合通信与 NCCL
 
-[总路线](../../README.md) · [学习方式](../../docs/learning-workflow.md) · [资源索引](../../resources/README.md) · [当前做法与相关进展](context.md)
+[课程目录](../../course/README.md) · [我的进度](../../course/progress.md) · [环境准备](../../course/environment.md)
 
-建议学习位置：第 8 个学习周。W7 是固定单元 ID，按下方导航推进。
+预计 10～18 小时用于本单元，变式与排错另留 1～3 小时；桥接只计新发生的时间。按实际掌握推进，记录规则见 [学习方法](../../course/guide.md#time-budget)。
 
-状态：未开始。预算：约 10.5 小时（[分项](../../docs/study-guide.md#time-budget)）。环境：Linux 服务器，2 卡基础，4 卡选做。
+## 这一单元要弄清什么
 
-## 本周要解决什么
+同样是两张卡交换数据，求和、广播和拼接会得到完全不同的结果。先为每个 rank 写出输入输出，再运行最小两卡实验，改变消息大小并观察延迟与带宽。最后把曲线放回真实互连拓扑，判断成本可能来自哪里。
 
-理解集合通信的数据语义，并测量消息大小、卡数与 AllReduce 成本的关系。
+## 开始前
 
-先修：W1～W6 的张量、执行和测量知识，以及可用的多卡环境；W13 的编译实验不是通信实验的硬性前置。要回答：每个 rank 通信前后持有什么？小消息和大消息为何表现不同？多卡开销可能来自哪里？
+复用 W1 的 Tensor、W2 的执行与同步计时，先完成 [S2 通信部分](../../course/bridges/s02.md#s2)。课程按 W13 后学习，但编译与训练不是通信语义的技术前提。实际实验需要至少两张可用 GPU；没有设备时可先推演，运行项继续留待完成。
+
+<details>
+<summary>先解释，再展开核对</summary>
+
+rank0=[1,2]、rank1=[3,4] 做 SUM AllReduce 后双方都是 [4,6]。没有 2 卡只能完成纸面检查，不能标记通信实验完成。
+
+</details>
 
 ## 按顺序学习
 
-先用 30 分钟按 [资料复核流程](../../docs/weekly-refresh.md) 核对必读材料、版本和运行条件。[补充阅读](context.md) 在基础完成后选读，单独安排时间.
+- [S2 的带宽、延迟与 rank](../../course/bridges/s02.md)。
+- [W7 第 1 段：集合通信结束后，每个进程拿到什么？](session-01.md)。
+- [W7 第 2 段：为什么报表里有两种带宽？](session-02.md)。
+- [W7 第 3 段：同一段通信代码，换两张卡为什么会变慢？](session-03.md)。
 
-按 [分段学习指南](study-guide.md) 分三段学习，每段读完就动手。各段学习指南包含原文定位、图例、暂停题与折叠核对说明；先自行作答，再检查理由和运行结果。AI 理解提示词可以跳过，完成要求不依赖 AI 评价。
-
-学习指南已整理：[第一段](session-01.md) · [第二段](session-02.md) · [第三段](session-03.md)。[本次资料复核](refresh-2026-10-01.md) 已完成；学习未开始，实际开始学习日仍按更新流程复查。
-
-| 学习段 | 指定范围 | 读后立即做 | 资料预算 |
-| --- | --- | --- | --- |
-| 1. 数据语义 | NCCL 四类 collective；CS336 L7 指定函数 | 每个 rank 的输入输出图 | 45 分钟 |
-| 2. 通信计量 | nccl-tests README 与 PERFORMANCE.md 指定项 | 2 卡正确性与消息扫描 | 60 分钟 |
-| 3. 成本与拓扑 | L7 hardware/benchmarking/all_reduce | 拓扑记录与曲线解释 | 45 分钟 |
-
-原文选读共 150 分钟，本地图解与自查另计 60 分钟。材料元信息统一在资源索引；可选拓展另排时间。
-
-## 遇到问题再看
-
-示例与带宽列含义优先回 [NCCL 语义](../../resources/README.md#r-collective) 和 [nccl-tests](../../resources/README.md#r-nccl-tests) 的指定范围。
-
-通过 [单卡训练检查 D](../../docs/prerequisites.md) 后，可选 [PyTorch DDP 入门](../../resources/README.md#r-ddp)；否则移到 W11。
+- [本单元掌握检查](assessment.md)：实验完成要求、变式与排错题。
 
 ## 实践任务
 
@@ -43,17 +37,10 @@
 3. 保存命令、原始日志与整理后的数据；注明 MB/MiB、延迟单位及带宽定义。
 4. 扩展：跑通最小 DDP 示例并验证梯度同步；训练先修不足时将本项与完整训练对比一起放到W11。
 
-## 验收
+## 按需回看
 
-- [ ] 能画出四类 collective 的输入输出。
-- [ ] 2 卡正确性检查与消息大小曲线完成，数据对应明确的 GPU 拓扑。
-- [ ] 图表区分延迟、algbw 和 busbw。
-- [ ] 能解释至少一项通信开销；4 卡和 DDP 扩展未做时单独标记，不用估算补数据。
+示例与带宽列含义优先回 [NCCL 语义](../../resources/training.md#r-collective) 和 [nccl-tests](../../resources/training.md#r-nccl-tests) 的指定范围。
 
-可选：完成基础后，从补充阅读选一个实际问题写进报告；未选不影响本单元完成。
+通过 [单卡训练检查 D](../../course/prerequisites.md) 后，可选 [PyTorch DDP 入门](../../resources/training.md#r-ddp)；否则移到 W11。
 
-## 实验记录
-
-实验与报告：尚未创建。自评与验收日期：待完成。
-
-[上一单元](../week-13-systems/README.md) · [下一单元](../week-08-serving-baseline/README.md)
+[上一单元](../week-13-systems/README.md) · [下一步](../week-08-serving-baseline/README.md)

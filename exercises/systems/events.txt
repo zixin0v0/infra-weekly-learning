@@ -1,0 +1,7 @@
+模拟事件；不是实际集群日志。三个案例彼此独立。
+
+A. Pod Pending / FailedScheduling: 0/1 nodes are available: 1 Insufficient cpu.
+B. Pod Pending / ImagePullBackOff: failed to resolve image tag.
+C. Job pod Terminated / Error / exitCode=1: FileNotFoundError: /data/input.json.
+
+先写对象状态、候选原因、下一项证据和最小修复。不要把增加重试当作三类错误的统一处理。

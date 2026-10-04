@@ -1,0 +1,8 @@
+request_id,event,time_seconds,source
+sample-1,sent,0.00,synthetic
+sample-1,token,0.20,synthetic
+sample-1,token,0.25,synthetic
+sample-1,token,0.30,synthetic
+sample-1,finished,0.32,synthetic
+sample-2,sent,1.00,synthetic
+sample-2,http_error,1.02,synthetic

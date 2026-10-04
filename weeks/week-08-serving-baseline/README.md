@@ -1,34 +1,33 @@
 # 单元 W8：小型推理服务基线
 
-[总路线](../../README.md) · [学习方式](../../docs/learning-workflow.md) · [资源索引](../../resources/README.md) · [当前做法与相关进展](context.md)
+[课程目录](../../course/README.md) · [我的进度](../../course/progress.md) · [环境准备](../../course/environment.md)
 
-建议学习位置：第 9 个学习周。W8 是固定单元 ID，按下方导航推进。
+预计 10～18 小时用于本单元，变式与排错另留 1～3 小时；桥接只计新发生的时间。按实际掌握推进，记录规则见 [学习方法](../../course/guide.md#time-budget)。
 
-状态：未开始。预算：约 11.5 小时（[分项](../../docs/study-guide.md#time-budget)）。环境：Linux 服务器，单张 4090。
+## 这一单元要弄清什么
 
-## 本周要解决什么
+从发出请求到看到第一个 token，中间发生了什么？先拆开 prefill 与 decode，再走通模型加载、HTTP 请求、日志和输出检查。你会建立一个小规模服务基线，解释 TTFT、TPOT、吞吐各在衡量哪一段过程。
 
-启动一个小模型服务，建立可复现的推理延迟与吞吐基线。
+## 开始前
 
-先修：W6的模型理解与测量能力、可用的单卡服务环境。W7多卡实验不构成本周硬性依赖。要回答：prefill 与 decode 分别做什么？TTFT、TPOT 与吞吐如何定义？请求到达率和并发上限有何区别？
+完成 W6 的模型分析，复用 W4 的资源计算，并能运行 Python、读取 JSON。第一段补 token 与模板，启动服务前做 [S2 请求部分](../../course/bridges/s02.md#s2)，之后做 [S3 Docker 实操](../../course/bridges/s03.md#s3)，最迟在 W10 阶段检查前完成。需要可用的单卡服务环境；W7 多卡实验不是这里的硬性依赖。
+
+<details>
+<summary>先解释，再展开核对</summary>
+
+能写出 Attention 的 KV 对象及脚本 JSON 输入输出即可；网络请求、token 和模板按下方例子学习。
+
+</details>
 
 ## 按顺序学习
 
-先用 30 分钟按 [资料复核流程](../../docs/weekly-refresh.md) 核对必读材料、版本和运行条件。[补充阅读](context.md) 在基础完成后选读，单独安排时间。
+- [S2 的 HTTP 请求部分](../../course/bridges/s02.md)。
+- [W8 第 1 段：prefill 和 decode 为什么资源特征不同](session-01.md)。
+- [W8 第 2 段：请求已经发出，为什么还没有生成结果？](session-02.md)。
+- [完成 S3 Docker 实操](../../course/bridges/s03.md)。
+- [W8 第 3 段：一个吞吐数字，分母究竟是什么？](session-03.md)。
 
-按 [分段学习指南](study-guide.md) 分三段学习，每段读完就动手。下面只列安排，具体链接、阅读位置和检查方法都在学习指南里。
-
-| 学习段 | 指定范围 | 读后立即做 | 资料预算 |
-| --- | --- | --- | --- |
-| 1. 推理阶段 | tokenizer 入门；CS336 L10 指定函数 | 请求时间轴与指标手算 | 75 分钟 |
-| 2. 在线服务 | 请求 JSON；Quickstart 的 Online Serving 与一种端点 | 模型配置与单请求核对 | 60 分钟 |
-| 3. 基线测量 | bench serve 的负载、长度和保存参数组 | 固定负载的并发基线 | 45 分钟 |
-
-原文选读共 180 分钟，本地图解与自查另计 60 分钟。材料元信息统一在资源索引；可选拓展另排时间。
-
-## 遇到问题再看
-
-博客：[vLLM 与 PagedAttention](../../resources/README.md#r-paged)，帮助理解 KV Cache 管理；W9再精读论文。
+- [本单元掌握检查](assessment.md)：实验完成要求、变式与排错题。
 
 ## 实践任务
 
@@ -42,17 +41,8 @@
 
 区分配置中的到达率和实际发送速率，并记录并发上限是否触顶。TTFT/端到端延迟包含客户端与网络路径，不能直接视为 GPU kernel 时间。本周先做小规模基线，更完整的客户端与服务端关联在 W10 完成。
 
-## 验收
+## 按需回看
 
-- [ ] 能复现服务启动、请求发送与结果导出。
-- [ ] 指标定义清楚：TTFT 从请求发出计到首 token；TPOT 说明平均方式及不足 2 个输出 token 的处理。
-- [ ] 保留请求配置、实际长度、成功/失败数量与延迟分位数。
-- [ ] 一张图展示并发变化带来的权衡，尚未做的优化不写成已验证结论。
+博客：[vLLM 与 PagedAttention](../../resources/serving.md#r-paged)，帮助理解 KV Cache 管理；W9再精读论文。
 
-可选：完成基础后，从补充阅读选一个实际问题写进报告；未选不影响本单元完成。
-
-## 实验记录
-
-实验与报告：尚未创建。自评与验收日期：待完成。
-
-[上一单元](../week-07-collectives/README.md) · [下一单元](../week-09-kv-cache/README.md)
+[上一单元](../week-07-collectives/README.md) · [下一步](../week-09-kv-cache/README.md)

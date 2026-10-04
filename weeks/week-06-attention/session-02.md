@@ -1,26 +1,32 @@
-# W6 第二段学习指南：FlashAttention 的 IO 与资源账本
+# W6 第 2 段：没有完整存下分数矩阵，还能算出 Attention 吗？
 
-[单元范围](README.md) · [三段学习导航](study-guide.md) · [资料复核](refresh-2026-10-01.md) · [上一段](session-01.md)
+[本单元](README.md) · [课程目录](../../course/README.md)
 
-整理日期：2026-10-01。原文选读预算：50 分钟。状态：学习指南已整理；账本与实现核对待完成。
+W5 说明了分块后如何维护分母。Attention 还要把每块概率对应的 Value 累加起来：既更新归一化基准，也更新加权结果，才能避免把完整中间矩阵来回写入显存。
 
-本地图解、暂停题与核对另计入本单元的自查时段，完整时间见 [分项预算](../../docs/study-guide.md#time-budget)。
+## 视频与正文
+
+主要阅读下列正文与图解；视频范围待核验。读到暂停题时，先预测再运行。
 
 ## 目标与先修
 
-用 W4 的 tile 和 W5 的在线状态解释哪些中间矩阵可以不完整写回显存。先通过 Attention 语义，主线固定一个小 Block 的前向。
+用 W4 的 tile 和 W5 的在线状态解释哪些中间矩阵可以不完整写回显存。先通过 Attention 语义，接下来的实验固定一个小 Block 的前向。
 
 ## 读哪里，在哪里停
 
-| 预算 | 原始来源与指定范围 | 停止点 |
+| 阅读参考 | 原始来源与指定范围 | 停止点 |
 | --- | --- | --- |
-| 15 分钟 | [FlashAttention 原论文的 arXiv v2](../../resources/README.md#r-flash) §2.1～2.2 | Attention 与硬件存储层次结束 |
+| 15 分钟 | [FlashAttention 原论文的 arXiv v2](../../resources/models.md#r-flash) §2.1～2.2 | Attention 与硬件存储层次结束 |
 | 25 分钟 | 同 PDF §3.1、Algorithm 1 | 前向 tile、最大值、归一化与输出状态；反向后置 |
 | 10 分钟 | 同 PDF §3.2 | IO 复杂度结论；证明与稀疏扩展后置 |
 
 访问日：2026-10-01；v2 提交于 2022-06-23，表示原论文的修订版本，不是 FlashAttention-2。论文 HBM/SRAM 是分析层次，本机消费级显存介质不同，不照搬带宽数字。
 
-## 概念说明
+## 省去中间写回，仍然要完成相同的加权计算
+
+显式实现先保存 S×S 分数，再保存概率，最后乘 Value。分块实现把一部分 Q/K/V 放到更近的存储中，逐块更新最大值、分母与输出累加状态。共同最大值变化时，旧的加权输出也需要相应重缩放；只有分母状态，无法知道每个 Value 的贡献。
+
+这里的核心是改变数据安排和执行顺序，而非删去某些注意力项。浮点运算顺序不同可能出现容差内差异，所以仍先做逐元素正确性检查，再分析 IO。下面的 Block 把 Attention 放回归一化、残差和 MLP 之间，帮助你判断局部改进是否重要。
 
 ```mermaid
 flowchart LR
@@ -44,12 +50,13 @@ flowchart LR
 
 ## 读图与自查
 
-```text
-X[B,S,W] ─→ LayerNorm → QKV / Attention / 输出投影 ─→ 加 X ─→ R[B,S,W]
-R[B,S,W] ─→ LayerNorm → Linear(W,F) → GELU → Linear(F,W) ─→ 加 R ─→ Y[B,S,W]
-```
+![pre-norm Block 经过归一化、Attention 与残差相加，再经归一化和 MLP 后加回第二条残差](../../assets/figures/w06-block-flow.png)
 
-这是主线小型 pre-norm Block 的结构图：Q/K/V、输出投影和 MLP 的两个 Linear 均不使用 bias，dropout=0，不加 KV Cache；两处 LayerNorm 的可学习参数单列。先按图逐项核对 shape，再汇总资源，W=H×D。
+*先走计算路径，再沿虚线检查两条残差从哪里来 [放大查看 SVG](../../assets/figures/w06-block-flow.svg)。暂停：把 MLP 中间宽度加倍，会改变残差两端的最终模型宽度吗？*
+
+
+
+这是要实现的小型 pre-norm Block 的结构图：Q/K/V、输出投影和 MLP 的两个 Linear 均不使用 bias，dropout=0，不加 KV Cache；两处 LayerNorm 的可学习参数单列。先按图逐项核对 shape，再汇总资源，W=H×D。
 
 <details>
 <summary>写下预测后，再核对本段问题</summary>
@@ -60,7 +67,7 @@ R[B,S,W] ─→ LayerNorm → Linear(W,F) → GELU → Linear(F,W) ─→ 加 R 
 
 **账本参照**：W=128、F=512 时，投影参数=65,536，MLP 参数=131,072，共 196,608（未计 LayerNorm）。B=1、S=128 的线性层为 50,331,648 FLOPs，Attention 两次矩阵乘为 8,388,608 FLOPs；单张 FP32 score 为 262,144 字节。两处标准 LayerNorm 若各含 weight 与 bias，共另加 4W=512 个参数。先核对层定义，再用这些推导值检查程序，不把它们称为峰值显存。
 
-这些说明用于核对推导；运行结果仍需自己验证。答错时保留原答案，回看本段“读哪里”或“卡点”指向的位置，再换一个小输入重做。
+保留自己的推导，再与实际结果比较。若不一致，按下面的回看位置找出最早出现差异的一步。
 
 </details>
 
@@ -76,7 +83,7 @@ R[B,S,W] ─→ LayerNorm → Linear(W,F) → GELU → Linear(F,W) ─→ 加 R 
 
 FP32 下单张 score 的理论字节为 1×4×128²×4=262144；概率矩阵另列。账本不等于峰值分配，不能把所有生命周期不同的 Tensor 简单相加。先与真实 shape、numel 核对，S 翻倍只作纸面预测，可选实测另安排；不新增手写 FlashAttention。
 
-## 卡点与过关
+## 结果不对时，从哪里查起
 
 | 卡点 | 最小回看位置 | 重新检查 |
 | --- | --- | --- |
@@ -88,3 +95,9 @@ FP32 下单张 score 的理论字节为 1×4×128²×4=262144；概率矩阵另�
 - [ ] 理论存储与实际分配分别记录。
 
 在 `notes.md` 的 `W6-S02` 保存推导和未验证项；通过后进入 [第三段](session-03.md)。
+
+## 完成后
+
+把代码、预测与实际结果记在同一份笔记中。完成本段检查后，沿下方链接继续。
+
+[上一课](session-01.md) · [下一课](session-03.md)

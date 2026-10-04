@@ -1,0 +1,7 @@
+{
+  "model": "replace-with-your-served-model",
+  "messages": [{"role": "user", "content": "Explain GPU memory in one sentence."}],
+  "max_tokens": 32,
+  "temperature": 0,
+  "stream": true
+}

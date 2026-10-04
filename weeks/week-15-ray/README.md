@@ -1,34 +1,32 @@
 # 单元 W15：Ray 任务与资源
 
-[总路线](../../README.md) · [学习方式](../../docs/learning-workflow.md) · [资源索引](../../resources/README.md) · [当前做法与相关进展](context.md)
+[课程目录](../../course/README.md) · [我的进度](../../course/progress.md) · [环境准备](../../course/environment.md)
 
-建议学习位置：第 15 个学习周。W15 是固定单元 ID，按下方导航推进。
+预计 12～22 小时用于本单元，变式与排错另留 1～3 小时；桥接只计新发生的时间。按实际掌握推进，记录规则见 [学习方法](../../course/guide.md#time-budget)。
 
-状态：未开始。预算：约 10.5 小时（[分项](../../docs/study-guide.md#time-budget)）。环境：Linux；先 CPU 任务，再小型 GPU 任务。
+## 这一单元要弄清什么
 
-## 本周要解决什么
+提交一个函数后，拿到的 ObjectRef 为什么还不是计算结果？你会把普通函数改成 Task，用 Actor 保存状态，再记录提交、开始、结束与重试。改变资源声明之后，从日志判断任务是在等待资源、等待依赖，还是已经执行出错。
 
-理解 Ray Task、Actor、ObjectRef 与逻辑资源，让任务执行和排队变得可观察。
+## 开始前
 
-先修：能运行独立 Python 实验。要回答：任务何时进入执行？资源声明如何限制并发？分配 GPU 是否等于限制显存？
+能写函数、类与 JSON 文件，并完成 [先修 A](../../course/prerequisites.md)。第一段前做 [S6 的依赖图、准入与重试](../../course/bridges/s06.md#s6)，类不熟时回 [P8](../../course/foundations/p08.md)。课程安排在 W14 后；CPU Task 本身不依赖训练性能实验。
+
+<details>
+<summary>先解释，再展开核对</summary>
+
+两个独立 Counter 对象应各自保存计数；函数返回值和指向未来结果的引用不是同一种对象。Python 类回 P8 复习。
+
+</details>
 
 ## 按顺序学习
 
-先用 30 分钟按 [资料复核流程](../../docs/weekly-refresh.md) 核对必读材料、版本和运行条件。[补充阅读](context.md) 在基础完成后选读，单独安排时间。
+- [S6 的任务依赖图与资源准入](../../course/bridges/s06.md)。
+- [W15 第 1 段：函数返回的是结果，还是指向未来结果的引用？](session-01.md)。
+- [W15 第 2 段：声明一个 CPU，是否真的只用一个线程？](session-02.md)。
+- [W15 第 3 段：任务没开始，是资源忙、永远放不下，还是已经失败？](session-03.md)。
 
-按 [分段学习指南](study-guide.md) 分三段学习，每段读完就动手。下面只列安排，具体链接、阅读位置和检查方法都在学习指南里。
-
-| 学习段 | 指定范围 | 读后立即做 | 资料预算 |
-| --- | --- | --- | --- |
-| 1. Task 与 Actor | Ray Core 的 Running/Calling/Passing 三节 | 任务结果与状态验证 | 50 分钟 |
-| 2. 逻辑资源 | Resources 的物理/逻辑资源与声明示例 | 并发限制与设备记录 | 50 分钟 |
-| 3. 调度日志 | Scheduling 的 Resources 与 DEFAULT | 提交/开始/结束事件记录 | 50 分钟 |
-
-原文选读共 150 分钟，本地图解与自查另计 60 分钟。材料元信息统一在资源索引；可选拓展另排时间。
-
-## 遇到问题再看
-
-API 有疑问时，查 [Tasks 与 ray.remote 示例](../../resources/README.md#r-ray-task)，暂不阅读调度器 C++ 内部实现。
+- [本单元掌握检查](assessment.md)：实验完成要求、变式与排错题。
 
 ## 实践任务
 
@@ -40,17 +38,8 @@ API 有疑问时，查 [Tasks 与 ray.remote 示例](../../resources/README.md#r
 4. 有可用 GPU 时运行小型计算任务，并记录真实 GPU 占用；模拟任务明确标记。
 5. 说明 Ray 的资源是调度层面的逻辑约束；num_gpus 或自定义 memory 资源不能自动构成显存硬隔离。
 
-## 验收
+## 按需回看
 
-- [ ] 任务与 Actor 的行为可复现，返回结果正确。
-- [ ] 可重建每个任务的等待与执行时间。
-- [ ] 能区分逻辑资源分配、显存实际占用与 GPU 实际忙碌。
-- [ ] 不将 CPU sleep 或模拟 GPU 令牌的结果称为真实 GPU 利用率。
+API 有疑问时，查 [Tasks 与 ray.remote 示例](../../resources/scheduling.md#r-ray-task)，暂不阅读调度器 C++ 内部实现。
 
-可选：完成基础后，从补充阅读选一个实际问题写进报告；未选不影响本单元完成。
-
-## 实验记录
-
-实验与报告：尚未创建。自评与验收日期：待完成。
-
-[上一单元](../week-14-parallelism/README.md) · [下一单元](../week-16-scheduling/README.md)
+[上一单元](../week-14-parallelism/README.md) · [下一步](../week-16-scheduling/README.md)

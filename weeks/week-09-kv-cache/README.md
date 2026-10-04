@@ -1,36 +1,31 @@
 # 单元 W9：KV Cache 与 PagedAttention
 
-[总路线](../../README.md) · [学习方式](../../docs/learning-workflow.md) · [资源索引](../../resources/README.md) · [当前做法与相关进展](context.md)
+[课程目录](../../course/README.md) · [我的进度](../../course/progress.md) · [环境准备](../../course/environment.md)
 
-建议学习位置：第 10 个学习周。W9 是固定单元 ID，按下方导航推进。
+预计 10～18 小时用于本单元，变式与排错另留 1～3 小时；桥接只计新发生的时间。按实际掌握推进，记录规则见 [学习方法](../../course/guide.md#time-budget)。
 
-状态：未开始。预算：约 10.5 小时（[分项](../../docs/study-guide.md#time-budget)）。环境：沿用W8的单卡服务。
+## 这一单元要弄清什么
 
-## 本周要解决什么
+生成越来越长的文本时，KV Cache 为什么持续增长？先算出每个 token 保存的 K/V 字节，再用逻辑块到物理块的映射解释分页与共享。实验复用 W8 服务，比较前缀缓存的冷、热状态；APC 开关只检验前缀复用，不能直接测出分页分配器单独带来的加速。
 
-理解 KV Cache 的容量与管理方式，用受控实验检查前缀复用的收益。
+## 开始前
 
-理论部分学习 PagedAttention 分页管理，实测部分检查 Automatic Prefix Caching（APC）。APC 开关没有直接隔离分页分配器的作用，因此本周不能用它得出“PagedAttention 带来多少加速”的结论。
+先让 W8 的单请求与 token 长度检查可以重做，再回看 W1 的字节计算。分清层数、query heads 与 KV heads；不清楚时回 [W8 第一段](../week-08-serving-baseline/session-01.md)。[S3 Docker 操作](../../course/bridges/s03.md#s3) 若尚未完成，在 W10 阶段检查前补做。
 
-先修：W8基线可复现。要回答：PagedAttention 解决什么内存问题？共享前缀是否必然命中？冷缓存与热缓存应怎样分别测量？
+<details>
+<summary>先解释，再展开核对</summary>
+
+GQA 的 KV 容量使用 KV heads；输出 token 数和字符数不可互换。若分不清先回 W8 第一段。
+
+</details>
 
 ## 按顺序学习
 
-先用 30 分钟按 [资料复核流程](../../docs/weekly-refresh.md) 核对必读材料、版本和运行条件。[补充阅读](context.md) 在基础完成后选读，单独安排时间。
+- [W9 第 1 段：每增加一个 token，KV 要多占多少空间？](session-01.md)。
+- [W9 第 2 段：共享前缀以后，谁可以修改那块 KV？](session-02.md)。
+- [W9 第 3 段：热请求变快，怎样确认是前缀缓存起作用？](session-03.md)。
 
-按 [分段学习指南](study-guide.md) 分三段学习，每段读完就动手。下面只列安排，具体链接、阅读位置和检查方法都在学习指南里。
-
-| 学习段 | 指定范围 | 读后立即做 | 资料预算 |
-| --- | --- | --- | --- |
-| 1. 容量与分页 | PagedAttention §3、§4.1～4.2 | KV 容量脚本与块表 | 60 分钟 |
-| 2. 共享与分叉 | PagedAttention §4.3、§4.4 开头；L10 按需复看 | 共享/释放图与前缀请求组 | 45 分钟 |
-| 3. APC 对照 | APC 文档的三个指定章节 | 冷/热缓存与命中证据 | 45 分钟 |
-
-原文选读共 150 分钟，本地图解与自查另计 60 分钟。材料元信息统一在资源索引；可选拓展另排时间。
-
-## 遇到问题再看
-
-复看 [CS336 2026 Lecture 10](../../resources/README.md#r-inference) 中 KV Cache 相关内容，替换一部分论文阅读时间。论文设计与当前 vLLM 实现要分开记录。
+- [本单元掌握检查](assessment.md)：实验完成要求、变式与排错题。
 
 ## 实践任务
 
@@ -44,17 +39,8 @@
 
 按官方 APC 文档，将复用的直接作用定位为减少重复 prefill。TPOT 或吞吐变化还可能受到排队、批处理与负载变化影响，不能仅凭缓存开关推断 decode 算子加速。
 
-## 验收
+## 按需回看
 
-- [ ] 能画出 PagedAttention 的映射，不将缓存管理等同于改变 Attention 数学定义。
-- [ ] 对照只改变目标因素，实际 token 长度和冷/热状态可追溯。
-- [ ] 区分观察到的性能变化与尚未证实的缓存命中解释。
-- [ ] 论文笔记只聚焦与实验相关的设计，不要求复现论文完整系统。
+复看 [CS336 2026 Lecture 10](../../resources/serving.md#r-inference) 中 KV Cache 相关内容，替换一部分论文阅读时间。论文设计与当前 vLLM 实现要分开记录。
 
-可选：完成基础后，从补充阅读选一个实际问题写进报告；未选不影响本单元完成。
-
-## 实验记录
-
-实验与报告：尚未创建。自评与验收日期：待完成。
-
-[上一单元](../week-08-serving-baseline/README.md) · [下一单元](../week-10-serving-benchmark/README.md)
+[上一单元](../week-08-serving-baseline/README.md) · [下一步](../week-10-serving-benchmark/README.md)

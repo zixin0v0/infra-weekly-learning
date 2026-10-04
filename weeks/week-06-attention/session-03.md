@@ -1,10 +1,14 @@
-# W6 第三段学习指南：模型热点与 CPU—GPU 时间线
+# W6 第 3 段：GPU 的空档，应该去哪里找原因？
 
-[单元范围](README.md) · [三段学习导航](study-guide.md) · [资料复核](refresh-2026-10-01.md) · [上一段](session-02.md)
+[本单元](README.md) · [课程目录](../../course/README.md)
 
-整理日期：2026-10-01。原文选读预算：60 分钟。状态：学习指南已整理；模型采样与正式计时待完成。
+算子表能告诉你某类操作累计用了多少时间，却未必告诉你它为什么迟迟没有开始。把 CPU 提交、设备执行和等待放在同一时间线上，才看得到被平均数藏起来的空档。
 
-本地图解、暂停题与核对另计入本单元的自查时段，完整时间见 [分项预算](../../docs/study-guide.md#time-budget)。
+## 视频与正文
+
+主要阅读下列正文与图解；视频范围待核验。读到暂停题时，先预测再运行。
+
+沿[Block 数据流图](session-02.md)给 Norm、Attention、MLP 分别标上待测区间。形状不变的残差路径仍可能有内存访问，不能从图中的方框大小判断耗时。
 
 ## 目标与先修
 
@@ -12,15 +16,19 @@
 
 ## 读哪里，在哪里停
 
-| 预算 | 原始来源与指定范围 | 停止点 |
+| 阅读参考 | 原始来源与指定范围 | 停止点 |
 | --- | --- | --- |
-| 25 分钟 | [PyTorch Profiler recipe](../../resources/README.md#r-trace) 的步骤 3、4 | 执行时间与内存表解释结束；不增加 ResNet 实验 |
+| 25 分钟 | [PyTorch Profiler recipe](../../resources/models.md#r-trace) 的步骤 3、4 | 执行时间与内存表解释结束；不增加 ResNet 实验 |
 | 10 分钟 | 同页 export_chrome_trace 示例 | trace 导出方法结束 |
-| 25 分钟 | [Nsight Systems User Guide](../../resources/README.md#r-trace) 的 CUDA Trace → Basic CUDA trace、Marking and Labeling Regions | 识别调用/拷贝/kernel 与区段标记后停 |
+| 25 分钟 | [Nsight Systems User Guide](../../resources/models.md#r-trace) 的 CUDA Trace → Basic CUDA trace、Marking and Labeling Regions | 识别调用/拷贝/kernel 与区段标记后停 |
 
 访问日：2026-10-01。工具覆盖与权限需在实际设备确认；官方示例时间不是本机结果。
 
-## 概念说明
+## 耗时相加之前，先检查有没有重叠和嵌套
+
+**时间线（timeline）**保留每个事件的起止位置。两个 GPU 操作之间的空档，可能是 CPU 没来得及提交、输入未准备好，或等待其他依赖；它本身不是某个 kernel 内部低效的证据。聚合表把多次事件合在一起，适合找候选热点，却不能单独重建先后关系。
+
+回看 [CPU 与 GPU 的提交关系](../../course/bridges/s01.md)。内存指标也要问“统计了什么”；[第四段](session-04.md) 用训练对象和缓存对照具体解释。
 
 算子表按聚合耗时寻找热点，时间线展示先后和重叠。CPU 等待、提交间隙、拷贝与 GPU kernel 不是一个指标；GPU 有空档不能直接证明某个 kernel 内部效率低。
 
@@ -53,7 +61,7 @@ GPU：       [ Attention ] ── 空档 ───────── [ MLP ]
 
 **题 2**：reserved 大于 allocated 可能只是缓存分配器保留了可复用空间，不能直接判泄漏。CPU 区段可能只覆盖提交，需要 GPU 完成点才能解释整个调用耗时。若怀疑泄漏，要在相同条件的多次迭代间比较仍存活的分配，不能只看一个快照。
 
-这些说明用于核对推导；运行结果仍需自己验证。答错时保留原答案，回看本段“读哪里”或“卡点”指向的位置，再换一个小输入重做。
+保留自己的推导，再与实际结果比较。若不一致，按下面的回看位置找出最早出现差异的一步。
 
 </details>
 
@@ -71,7 +79,7 @@ GPU：       [ Attention ] ── 空档 ───────── [ MLP ]
 
 至少一条观察与机制假设分开写；需要单 kernel 内部指标再复用 W3 的 Nsight Compute，不要求本周同时穷举所有工具。
 
-## 卡点与过关
+## 结果不对时，从哪里查起
 
 | 卡点 | 最小回看位置 | 重新检查 |
 | --- | --- | --- |
@@ -82,4 +90,10 @@ GPU：       [ Attention ] ── 空档 ───────── [ MLP ]
 - [ ] 至少一张时间线能解释热点与空档。
 - [ ] 账本、观测与未验证机制分别说明。
 
-在 `notes.md` 的 `W6-S03` 整理 [周报告](README.md)，验收后进入 [W13](../week-13-systems/session-01.md)，复用同一 Block。
+在 `notes.md` 的 `W6-S03` 整理 [周报告](README.md)，先完成 [第四段的显存观察](session-04.md)，再做掌握检查并进入 W13，复用同一 Block。
+
+## 完成后
+
+把代码、预测与实际结果记在同一份笔记中。完成本段检查后，沿下方链接继续。
+
+[上一课](session-02.md) · [下一课](session-04.md)

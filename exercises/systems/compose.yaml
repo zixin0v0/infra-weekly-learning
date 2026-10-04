@@ -1,0 +1,6 @@
+name: infra-learning-http
+services:
+  web:
+    image: docker/welcome-to-docker:latest
+    ports:
+      - "127.0.0.1:8080:80"

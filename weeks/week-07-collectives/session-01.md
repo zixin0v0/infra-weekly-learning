@@ -1,10 +1,14 @@
-# W7 第一段学习指南：每个 rank 的输入与输出
+# W7 第 1 段：集合通信结束后，每个进程拿到什么？
 
-[单元范围](README.md) · [三段学习导航](study-guide.md) · [资料复核](refresh-2026-10-01.md)
+[本单元](README.md) · [课程目录](../../course/README.md)
 
-整理日期：2026-10-01。原文选读预算：45 分钟。状态：学习指南已整理；多卡通信待验证。
+AllReduce、AllGather 都带有 All，但它们并不做相同的运算。先用两个小数组画清元素来源与输出长度，之后才值得在两张 GPU 上测通信速度。
 
-本地图解、暂停题与核对另计入本单元的自查时段，完整时间见 [分项预算](../../docs/study-guide.md#time-budget)。
+## 视频与正文
+
+先看 [CS336 2026 Lecture 7 · Parallelism](https://cs336.stanford.edu/)：从课表 Recordings 打开对应讲次；讲到 collective 时暂停，画每个 rank 的输入和输出。
+
+视频分钟位置待核验；找不到对应主题时，按下列正文范围阅读。重复内容只需回查。
 
 ## 目标与先修
 
@@ -12,27 +16,42 @@
 
 ## 读哪里，在哪里停
 
-| 预算 | 原始来源与指定范围 | 停止点 |
+| 阅读参考 | 原始来源与指定范围 | 停止点 |
 | --- | --- | --- |
-| 25 分钟 | [NCCL Collective Operations](../../resources/README.md#r-collective) 的 AllReduce、Broadcast、AllGather、ReduceScatter | 四类输入输出图结束 |
-| 20 分钟 | [CS336 L7 固定讲义](../../resources/README.md#r-l7) 的 torch_distributed、collective_operations_main，配 [官方视频列表](../../resources/README.md#x-navigation) 第 7 讲 | collective 例子结束，不进入数据并行训练 |
+| 25 分钟 | [NCCL Collective Operations](../../resources/training.md#r-collective) 的 AllReduce、Broadcast、AllGather、ReduceScatter | 四类输入输出图结束 |
+| 20 分钟 | [CS336 L7 固定讲义](../../resources/training.md#r-l7) 的 torch_distributed、collective_operations_main，配 [官方视频列表](../../resources/optional.md#x-navigation) 第 7 讲 | collective 例子结束，不进入数据并行训练 |
 
-访问日：2026-10-01；NCCL 文档标 2.32.3，运行版本待选。视频没有已核验时间轴，函数用于讲义定位。
+访问日：2026-10-01；NCCL 文档标 2.32.3，运行版本待选。函数名用于定位讲义正文。
 
-## 概念说明
+## 把进程编号与设备编号分开
 
-rank 是进程组中的编号，不自动等于物理 GPU 编号。AllReduce 对应位置归约后每 rank 获得完整结果；Broadcast 从 root 复制；AllGather 按 rank 顺序拼接；ReduceScatter 先归约再按 rank 切分。
+**rank** 是进程在通信组中的编号。实验可以把一个 rank 绑定到一张 GPU，但换设备映射不会自动改变 rank 顺序。**集合通信（collective）**要求组内各进程按约定共同参与，而不是一个进程单独发起就能完成的普通函数调用。
 
-对 rank 0=[1,2,3,4]、rank 1=[10,20,30,40]，SUM AllReduce 给双方 [11,22,33,44]，ReduceScatter 给各自两元素区间。通信各端需遵守一致操作、dtype、数量和调用顺序；“各自调用成功”不能代替各 rank 的一致调用约定。
+下面用 [2,4] 与 [1,3] 区分求和与拼接。AllReduce 的对应位置求和得到 [3,7]，每个 rank 都取得它；AllGather 保留两份原数据，得到四个元素。ReduceScatter 对归约后的结果分段，Broadcast 则只传播指定 root 的输入。
+
+通信各端需遵守一致操作、dtype、数量和调用顺序；不能只检查某个 rank 的一次调用。下面的图先用两个元素讲解，暂停题再换成四个元素。
+
+![两 rank 的四种集合通信输出对照，区分逐位置求和、按 rank 拼接和按 rank 切分](../../assets/figures/w07-collective-values.png)
+
+*逐行先说是否进行了计算，再比较每个输出的长度和归属 [放大查看 SVG](../../assets/figures/w07-collective-values.svg)。暂停：若改为三 rank，AllGather 的输出长度怎样变化，输入的拼接顺序由什么决定？*
+
+把 SUM AllReduce 看成“ReduceScatter 得到各段最终和，再 AllGather 收齐”，可以解释为什么同一个最终结果可能经过多个通信阶段。这个分解只说明数据语义，不断言 NCCL 在当前消息和拓扑下必然采用哪种算法。
+
+![两 rank 先各得到一段求和结果，再交换片段得到完整 AllReduce 输出](../../assets/figures/w07-allreduce-steps.png)
+
+*先沿两列从上到下读；实线跟踪本 rank 的结果，虚线提示跨 rank 数据依赖。 [放大查看 SVG](../../assets/figures/w07-allreduce-steps.svg)。暂停：ReduceScatter 后，为什么任意一个 rank 都还没有完整的 [3,7]？*
 
 ## 暂停题与预测
 
-1. 用上述输入写四类操作的全部输出；Broadcast 指定 root=0，AllGather 的输出有几个元素？
+1. 换成 rank 0=[1,2,3,4]、rank 1=[10,20,30,40]，写四类操作的全部输出；Broadcast 指定 root=0，AllGather 的输出有几个元素？
 2. 两 rank 用不同 collective 顺序，可能产生什么行为？改变卡号是否会自动改变拼接顺序？
 
 先画 rank 输入，再用颜色标来自谁的数据，最后回四类操作图。
 
 ## 读图与自查
+
+<details>
+<summary>先填四种输出，再展开完整对照表</summary>
 
 | 操作 | rank 0 的输出 | rank 1 的输出 |
 | --- | --- | --- |
@@ -43,6 +62,8 @@ rank 是进程组中的编号，不自动等于物理 GPU 编号。AllReduce 对
 
 这是题中两个输入的手算数据流表，不是 NCCL 实测。先遮住输出列自己填写，再用两种标记区分“来自某个 rank 的原数据”与“逐位置相加的数据”。
 
+</details>
+
 <details>
 <summary>写下预测后，再核对本段问题</summary>
 
@@ -50,7 +71,7 @@ rank 是进程组中的编号，不自动等于物理 GPU 编号。AllReduce 对
 
 **题 2**：不同调用顺序可能造成等待、超时或错误。rank 顺序决定拼接/切片顺序，物理 GPU 号要通过映射解释；换设备不自动更改进程组编号。出现挂起时，先逐 rank 列出 collective、dtype、count、root 和调用序号，不通过反复随机换卡猜测原因。
 
-这些说明用于核对推导；运行结果仍需自己验证。答错时保留原答案，回看本段“读哪里”或“卡点”指向的位置，再换一个小输入重做。
+保留自己的推导，再与实际结果比较。若不一致，按下面的回看位置找出最早出现差异的一步。
 
 </details>
 
@@ -72,9 +93,9 @@ rank 是进程组中的编号，不自动等于物理 GPU 编号。AllReduce 对
 torchrun --standalone --nnodes=1 --nproc-per-node=2 collective_semantics.py
 ```
 
-先让每个进程打印 rank、local rank 和设备，确认映射再检查输出。首次调试只使用本段的小数组，不进入性能扫描；启动参数依据 [PyTorch torchrun 文档](../../resources/README.md#r-collective) 的单机用法。
+先让每个进程打印 rank、local rank 和设备，确认映射再检查输出。首次调试只使用本段的小数组，不进入性能扫描；启动参数依据 [PyTorch torchrun 文档](../../resources/training.md#r-collective) 的单机用法。
 
-## 卡点与过关
+## 结果不对时，从哪里查起
 
 | 卡点 | 最小回看位置 | 重新检查 |
 | --- | --- | --- |
@@ -86,3 +107,9 @@ torchrun --standalone --nnodes=1 --nproc-per-node=2 collective_semantics.py
 - [ ] 环境未就绪项不写通过。
 
 在 `notes.md` 的 `W7-S01` 留下预测、命令与限制；通过后进入 [第二段](session-02.md)。
+
+## 完成后
+
+把代码、预测与实际结果记在同一份笔记中。完成本段检查后，沿下方链接继续。
+
+[上一课](README.md) · [下一课](session-02.md)

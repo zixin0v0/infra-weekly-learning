@@ -1,10 +1,12 @@
-# W7 第二段学习指南：时间、algbw 与 busbw
+# W7 第 2 段：为什么报表里有两种带宽？
 
-[单元范围](README.md) · [三段学习导航](study-guide.md) · [资料复核](refresh-2026-10-01.md) · [上一段](session-01.md)
+[本单元](README.md) · [课程目录](../../course/README.md)
 
-整理日期：2026-10-01。原文选读预算：60 分钟。状态：学习指南已整理；构建与两卡测量待完成。
+同一行 nccl-tests 会给出时间、algbw 和 busbw。它们不是三份独立测量；后两项由时间和数据量换算，必须知道分母、单位以及 rank 因子才能解释。
 
-本地图解、暂停题与核对另计入本单元的自查时段，完整时间见 [分项预算](../../docs/study-guide.md#time-budget)。
+## 视频与正文
+
+主要阅读下列正文与图解；视频范围待核验。读到暂停题时，先预测再运行。
 
 ## 目标与先修
 
@@ -12,15 +14,19 @@
 
 ## 读哪里，在哪里停
 
-| 预算 | 原始来源与指定范围 | 停止点 |
+| 阅读参考 | 原始来源与指定范围 | 停止点 |
 | --- | --- | --- |
-| 25 分钟 | [nccl-tests 固定 README](../../resources/README.md#r-nccl-tests) | Build、Usage、单进程多 GPU 例子与大小参数结束 |
-| 25 分钟 | [固定 PERFORMANCE.md](../../resources/README.md#r-nccl-tests) 的 Time、Algorithm bandwidth、Bus bandwidth → AllReduce | AllReduce 换算结束，其他 collective 性能后置 |
+| 25 分钟 | [nccl-tests 固定 README](../../resources/training.md#r-nccl-tests) | Build、Usage、单进程多 GPU 例子与大小参数结束 |
+| 25 分钟 | [固定 PERFORMANCE.md](../../resources/training.md#r-nccl-tests) 的 Time、Algorithm bandwidth、Bus bandwidth → AllReduce | AllReduce 换算结束，其他 collective 性能后置 |
 | 10 分钟 | 手算一个假设报表行 | 单位、rank 因子与 in-place/out-of-place 分组清楚即停 |
 
 访问日：2026-10-01。源码 commit 是阅读/构建定位，实际 CUDA/NCCL 与构建选项需独立记录。
 
-## 概念说明
+## 先复算一个普通除法，再加归一化因子
+
+**算法带宽（algbw）**用操作定义中的逻辑字节数除以耗时。**总线带宽指标（busbw）**再按特定 collective 的公式换算，方便在其模型下讨论传输成本；它不是在某条 PCIe 链路上直接采样得到的速度。
+
+先把微秒转换成秒，用 B/s 算完，再除以 10^9 得 GB/s。两 rank AllReduce 的换算因子恰好为 1，不能据此认为两个术语完全等价。回看 [S2 的延迟与带宽图](../../course/bridges/s02.md)，小消息的启动成本仍可能主导时间。
 
 algbw 是操作对应逻辑数据量除时间；AllReduce 的 busbw=algbw×2×(P−1)/P，P 是 rank 数。两 rank 因子为 1，四 rank 为 1.5；它是归一化计量，不是直接采样 PCIe/NVLink 的瞬时链路带宽。
 
@@ -51,7 +57,7 @@ P=2：因子 1                 P=4：因子 1.5
 
 **题 2**：相同字节数下，元素数=字节数/元素宽度，因此换 dtype 后元素数可能改变。错误数非零的行不进入有效性能曲线。小型复算先确认字节、元素数、时间单位、rank 总数和所选报表组，逐项定位差异。
 
-这些说明用于核对推导；运行结果仍需自己验证。答错时保留原答案，回看本段“读哪里”或“卡点”指向的位置，再换一个小输入重做。
+保留自己的推导，再与实际结果比较。若不一致，按下面的回看位置找出最早出现差异的一步。
 
 </details>
 
@@ -69,7 +75,7 @@ P=2：因子 1                 P=4：因子 1.5
 
 原始 `.log` 默认忽略；可公开小型记录保存为 `nccl-tests.txt` 或 CSV，大日志放 `artifacts/` 并在报告记录生成命令。数值错误、超时与失败单列，不能混入有效曲线。
 
-## 卡点与过关
+## 结果不对时，从哪里查起
 
 | 卡点 | 最小回看位置 | 重新检查 |
 | --- | --- | --- |
@@ -81,3 +87,9 @@ P=2：因子 1                 P=4：因子 1.5
 - [ ] 任意一行可复算，指标局限明确。
 
 在 `notes.md` 的 `W7-S02` 留下预测、命令与结果；通过后进入 [第三段](session-03.md)。
+
+## 完成后
+
+把代码、预测与实际结果记在同一份笔记中。完成本段检查后，沿下方链接继续。
+
+[上一课](session-01.md) · [下一课](session-03.md)

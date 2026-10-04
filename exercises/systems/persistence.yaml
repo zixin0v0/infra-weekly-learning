@@ -1,0 +1,14 @@
+name: infra-learning-storage
+services:
+  writer:
+    image: python:3.12-slim
+    volumes:
+      - learning-data:/data
+    command: ["python", "-c", "from pathlib import Path; Path('/data/step.txt').write_text('2', encoding='utf-8')"]
+  reader:
+    image: python:3.12-slim
+    volumes:
+      - learning-data:/data
+    command: ["python", "-c", "from pathlib import Path; print(Path('/data/step.txt').read_text(encoding='utf-8'))"]
+volumes:
+  learning-data:

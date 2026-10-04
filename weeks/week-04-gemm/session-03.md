@@ -1,10 +1,14 @@
-# W4 第三段学习指南：Roofline 预测与库基线
+# W4 第 3 段：计算更少，为什么不一定更快？
 
-[单元范围](README.md) · [三段学习导航](study-guide.md) · [资料复核](refresh-2026-10-01.md) · [上一段](session-02.md)
+[本单元](README.md) · [课程目录](../../course/README.md)
 
-整理日期：2026-10-01。原文选读预算：45 分钟。状态：学习指南已整理；性能数据待测。
+同样的运算量，数据搬得多可能更慢；同样的数据量，计算更多又可能受计算单元限制。Roofline 用两个上限帮你提出假设，随后仍要靠同条件测量判断实际瓶颈。
 
-本地图解、暂停题与核对另计入本单元的自查时段，完整时间见 [分项预算](../../docs/study-guide.md#time-budget)。
+## 视频与正文
+
+先看 [CS336 2026 Lecture 2](https://www.youtube.com/watch?v=kuYAsz7zspQ)：arithmetic intensity 与 Roofline；暂停区分计算量、搬运量和带宽上界。
+
+视频分钟位置待核验；找不到对应主题时，按下列正文范围阅读。重复内容只需回查。
 
 ## 目标与先修
 
@@ -12,15 +16,19 @@
 
 ## 读哪里，在哪里停
 
-| 预算 | 原始来源与指定范围 | 停止点 |
+| 阅读参考 | 原始来源与指定范围 | 停止点 |
 | --- | --- | --- |
-| 15 分钟 | [CS336 L2 视频](../../resources/README.md#r-l2)，配 [固定讲义](../../resources/README.md#r-l2) 的 arithmetic_intensity_matmul、roofline_plots | 两个定位函数结束 |
-| 20 分钟 | [Scaling Book Roofline](../../resources/README.md#r-roofline) 的 Visualizing rooflines、Matrix multiplication | 矩阵计算模型结束；不照搬书中设备数字 |
+| 15 分钟 | [CS336 L2 视频](../../resources/foundations.md#r-l2)，配 [固定讲义](../../resources/foundations.md#r-l2) 的 arithmetic_intensity_matmul、roofline_plots | 两个定位函数结束 |
+| 20 分钟 | [Scaling Book Roofline](../../resources/gpu.md#r-roofline) 的 Visualizing rooflines、Matrix multiplication | 矩阵计算模型结束；不照搬书中设备数字 |
 | 10 分钟 | 用当前 GEMM 写 FLOPs、字节、算术强度 | 各量单位和搬运假设完整即停 |
 
-访问日：2026-10-01。视频时间轴未核验，使用讲义函数定位。
+来源查阅日期：2026-10-01；函数名用于定位讲义正文。
 
-## 概念说明
+## 先求两个上限，再取较小的一个
+
+**算术强度（arithmetic intensity）**是每搬运 1 B 数据对应多少次浮点运算，单位 FLOPs/B。带宽乘算术强度，得到数据供应速度所允许的计算吞吐；硬件计算能力给出另一上限。理想吞吐不超过两者中较小的值。
+
+假设计算上限为 8 GFLOP/s、带宽为 2 GB/s，当算术强度为 1 FLOP/B 时，供数只能支持 2 GFLOP/s；增加到 4 FLOPs/B 后两条上限相遇。再增加复用，模型中的带宽上限继续升高，计算上限却不变。这些只是说明模型的假设数字。
 
 采用每乘加 2 FLOPs 的约定，GEMM 为 2MNK FLOPs。若每个输入只读一次、输出写一次、C 不需要先读，理想搬运下界为元素字节数×(MK+KN+MN)。这是假设下界，不是实际 DRAM 计数。
 
@@ -35,16 +43,13 @@
 
 ## 读图与自查
 
-```text
-吞吐上界 P
-  ↑                 ───────── 同精度计算上限
-  |               /
-  |             /  斜线：带宽 × 算术强度
-  |           /
-  +─────────────────────────→ 算术强度（FLOPs/B）
-```
+![理论 Roofline 中带宽 2 GB/s 与算术强度相乘，直到达到计算上限 8 GFLOP/s](../../assets/figures/w04-roofline-model.png)
 
-这是 Roofline 形状示意，无设备数值。对自己的点先说明字节取自理想下界还是实际搬运估计；二者不能混画成同一种观测。
+*沿横轴增加算术强度，观察斜线何时变成水平线 [放大查看 SVG](../../assets/figures/w04-roofline-model.svg)。暂停：如果带宽翻倍但计算上限不变，两条限制相遇的位置向哪边移动？*
+
+
+
+图中只有假设的模型数值，不代表实测设备。对自己的点先说明字节取自理想下界还是实际搬运估计；二者不能混画成同一种观测。
 
 <details>
 <summary>写下预测后，再核对本段问题</summary>
@@ -53,7 +58,7 @@
 
 **题 2**：库还可能采用更好的调度、指令和资源利用，tile 复用原理正确不保证练习实现胜出。TF32 与 FP32 策略不同，不能把差异全归因于 tile；先固定可比精度并检查误差，再解释性能。
 
-这些说明用于核对推导；运行结果仍需自己验证。答错时保留原答案，回看本段“读哪里”或“卡点”指向的位置，再换一个小输入重做。
+保留自己的推导，再与实际结果比较。若不一致，按下面的回看位置找出最早出现差异的一步。
 
 </details>
 
@@ -69,7 +74,7 @@
 
 选小/中/大方阵和一个长方形，提前检查显存容量；三组无 profiler 预热、重复测量，保留原始延迟与由同一 FLOPs 计数方法计算的吞吐。分别列理想下界和实现搬运估计，未知缓存或 Tensor Core 路径写待验证。只对一个代表形状采样已有 W3 sections。
 
-## 卡点与过关
+## 结果不对时，从哪里查起
 
 | 卡点 | 最小回看位置 | 重新检查 |
 | --- | --- | --- |
@@ -81,3 +86,9 @@
 - [ ] 区分模型、观察和机制推断。
 
 在 `notes.md` 的 `W4-S03` 整理 [周报告](README.md)，通过后进入 [W5](../week-05-triton-softmax/session-01.md)。
+
+## 完成后
+
+把代码、预测与实际结果记在同一份笔记中。完成本段检查后，沿下方链接继续。
+
+[上一课](session-02.md) · [下一课](assessment.md)

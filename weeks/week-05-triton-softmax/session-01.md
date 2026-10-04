@@ -1,26 +1,36 @@
-# W5 第一段学习指南：Triton program 与数据块
+# W5 第 1 段：一个 program 负责多少数据？
 
-[单元范围](README.md) · [三段学习导航](study-guide.md) · [资料复核](refresh-2026-10-01.md)
+[本单元](README.md) · [课程目录](../../course/README.md)
 
-整理日期：2026-10-01。原文选读预算：45 分钟。状态：学习指南已整理；Triton 环境与练习待验证。
+先用 [W1 的范围与精度](../week-01-foundations/session-04.md) 解释为什么有限输入也可能在指数运算中溢出，再推导这里的稳定写法。
 
-本地图解、暂停题与核对另计入本单元的自查时段，完整时间见 [分项预算](../../docs/study-guide.md#time-budget)。
+Triton 的表达式看起来像在处理一组向量，但这一组并不等于一个 CUDA 线程。先把逻辑数据块的偏移和有效范围写清楚，再让编译器组织底层执行。
+
+## 视频与正文
+
+先看 [CS336 2026 Lecture 6](https://www.youtube.com/watch?v=xnDHaNUvHBg)：Triton 的 program 与 kernel；看到索引表达式先遮住 mask，预测尾部行为。
+
+视频分钟位置待核验；找不到对应主题时，按下列正文范围阅读。重复内容只需回查。
 
 ## 目标与先修
 
-把 W2 的数组覆盖映射到 Triton program，解释 arange 与 mask。先通过 W4；运行前确认目标 Linux/WSL2、所选 Triton/PyTorch 与最小 kernel，本次未安装或运行。
+把 W2 的数组覆盖映射到 Triton program，解释 arange 与 mask。先通过 W4；运行前确认目标 Linux/WSL2、所选 Triton/PyTorch 与最小 kernel，实际运行状态以自己的环境记录为准。
 
 ## 读哪里，在哪里停
 
-| 预算 | 原始来源与指定范围 | 停止点 |
+| 阅读参考 | 原始来源与指定范围 | 停止点 |
 | --- | --- | --- |
-| 15 分钟 | [CS336 L6 视频](../../resources/README.md#r-l6)，配 [固定讲义](../../resources/README.md#r-l6) 的 triton_introduction | 只看引入与编程映射；不读后续其他算子 |
-| 20 分钟 | [Vector Addition 教程](../../resources/README.md#r-triton) 的 Compute Kernel、add_kernel 与封装 add | offsets、load/store mask、grid 结束 |
-| 10 分钟 | [Triton Semantics](../../resources/README.md#r-triton) 的 Broadcasting、Type Promotion | shape 扩展与浮点类型提升示例结束 |
+| 15 分钟 | [CS336 L6 视频](../../resources/gpu.md#r-l6)，配 [固定讲义](../../resources/gpu.md#r-l6) 的 triton_introduction | 只看引入与编程映射；不读后续其他算子 |
+| 20 分钟 | [Vector Addition 教程](../../resources/gpu.md#r-triton) 的 Compute Kernel、add_kernel 与封装 add | offsets、load/store mask、grid 结束 |
+| 10 分钟 | [Triton Semantics](../../resources/gpu.md#r-triton) 的 Broadcasting、Type Promotion | shape 扩展与浮点类型提升示例结束 |
 
-访问日：2026-10-01。网站是 main 浮动文档；[源码快照](../../resources/README.md#r-triton) 固定阅读代码，不能拿此开发提交冒充已安装版本。视频分钟数未核验。
+访问日：2026-10-01。网站是 main 浮动文档；[源码快照](../../resources/gpu.md#r-triton) 固定阅读代码，不能拿此开发提交冒充已安装版本。
 
-## 概念说明
+## 先理解一块数据，再比较两种编程方式
+
+`arange(0, BLOCK_SIZE)` 产生这一块内的位置，`program_id` 选择当前块。两者相加后的 offsets 决定读写哪些数据；load 和 store 各有自己的边界，保护输出并不能挽救已经发生的越界读取。
+
+回看 [W2 的线程覆盖图](../week-02-cuda-execution/session-01.md)：覆盖数组的算术相同，但图中的线程不是 Triton 的 program。一个 program 处理多个逻辑元素，内部如何映射到硬件线程需要由编译器和实际配置决定。
 
 一个 program 处理一个逻辑数据块，内部数据怎样映射到线程由编译器组织；program 不是单个 CUDA 线程。`program_id × BLOCK_SIZE + arange` 给出这一块的偏移，load/store 的 mask 限制有效元素。
 
@@ -58,7 +68,7 @@ program 2：offsets [8,9,10,11]  mask [真,真,假,假]
 
 **题 3**：输出为 (3,4)，参与运算的类型提升到 FP32。形状扩展与类型提升是两个独立规则，不能由一个推出另一个。
 
-这些说明用于核对推导；运行结果仍需自己验证。答错时保留原答案，回看本段“读哪里”或“卡点”指向的位置，再换一个小输入重做。
+保留自己的推导，再与实际结果比较。若不一致，按下面的回看位置找出最早出现差异的一步。
 
 </details>
 
@@ -74,7 +84,7 @@ program 2：offsets [8,9,10,11]  mask [真,真,假,假]
 
 先对 1、10、257 个 FP32 元素逐元素核对，再测一个较大输入。固定数据与计时边界；本段以正确性为主，不要求抄教程全部调优配置。记录实际包版本与支持条件；环境不可用时保留纸面映射，GPU 检查待补。
 
-## 卡点与过关
+## 结果不对时，从哪里查起
 
 | 卡点 | 最小回看位置 | 重新检查 |
 | --- | --- | --- |
@@ -86,3 +96,9 @@ program 2：offsets [8,9,10,11]  mask [真,真,假,假]
 - [ ] 运行参数、编译参数和未支持项区分清楚。
 
 在 `notes.md` 的 `W5-S01` 留下预测、命令与限制；通过后进入 [第二段](session-02.md)。
+
+## 完成后
+
+把代码、预测与实际结果记在同一份笔记中。完成本段检查后，沿下方链接继续。
+
+[上一课](README.md) · [下一课](session-02.md)
