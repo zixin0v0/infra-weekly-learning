@@ -8,6 +8,10 @@
 
 主要阅读下列正文与图解。视频范围待核验；已看懂的重复内容只需回查。
 
+## 中文补充（按需）
+
+李沐中文视频[读写文件 P4](https://www.bilibili.com/video/BV1AK4y1P7vs?p=4)及作者[§5.5.1～5.5.2](https://zh.d2l.ai/chapter_deep-learning-computation/read-write.html)（PyTorch），只在需要回顾 Tensor/state_dict 读回时使用。正文已预读，视频仅分集确认；它不是 DCP 恢复教程。optimizer、随机状态和数据位置仍按本页验证，旧例的 `torch.load` 参数也要回查当前版本。[范围与版本](../../resources/foundations.md#cn-save)。
+
 ## 开始前
 
 先完成 S5 的文件读回，能解释模型和 Adam 状态；保持本次 world size 与环境一致。

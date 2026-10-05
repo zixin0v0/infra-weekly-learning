@@ -22,6 +22,10 @@
 
 访问日：2026-10-01。padding 卡点可用 §10.2.3.3 或 [转置博客](../../resources/optional.md#x-cuda) 的额外一列示例替换 15 分钟，二选一，不另写转置项目。
 
+## 中文补充（按需）
+
+分块的数据复用卡住时，回看 HyperAI 中文[矩阵乘法](https://triton.hyper.ai/docs/getting-started/tutorials/matrix-multiplication/)“动机”的双重 tile 与 K 循环伪代码，停在指针算术前。它是上游教程的社区译文；本节只借循环关系理解复用。**Triton 代码没有展示 CUDA shared memory 的两次 barrier**，不能由省略推断不需要同步，仍按本页生产/使用关系验证。[范围与版本](../../resources/gpu.md#cn-triton)。
+
 ## 两次同步，保护两种相反的依赖
 
 **分块（tiling）**把大矩阵计算分成小块。以 T=2 为例，一个 2×2 的 A tile 与一个 2×2 的 B tile 为 C 的一个 2×2 区域贡献部分和；同一个 A 元素会用于两个输出列。沿 K 方向换下一对输入 tile，继续加到同一组输出累加器。

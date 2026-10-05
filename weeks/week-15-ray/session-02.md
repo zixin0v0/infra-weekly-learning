@@ -10,6 +10,10 @@
 
 先看[任务从提交到执行的图](session-01.md)中的“资源可用后”这一格。下面要弄清的是允许任务进入这一格的条件，以及它没有承诺的隔离能力。
 
+## 中文补充（按需）
+
+Ray 逻辑资源与真实隔离的中文对应暂缺。不要用 Kubernetes requests/limits 或博客中的“申请多个 CPU 就自动并行”解释 Ray；先按原英文核对 num_cpus/num_gpus，再观察本课等待与实际使用。若只忘记 CPU/内存单位，可回 S6；[缺项说明](../../resources/scheduling.md#cn-ray-gap)。
+
 ## 开始前
 
 先能提交与收集 Task，回看 [S6](../../course/bridges/s06.md) 中依赖满足后再检查资源的顺序。

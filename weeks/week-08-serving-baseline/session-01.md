@@ -18,6 +18,10 @@
 
 **卡点补充**：[Scaling Book Part 7](../../resources/serving.md#r-inference) 的 `The Basics of Transformer Inference` 与 `What do we actually want to optimize?`，补充算术强度与指标的解释；与视频重复部分不再重读；不进入多加速器部署章节。
 
+## 中文补充（按需）
+
+NVIDIA / Shashank Verma、Neal Vaidya 中文[掌握 LLM 技巧：推理优化](https://developer.nvidia.cn/blog/mastering-llm-techniques-inference-optimization/)，看开头的 prefill、decode、batching 与 KV cache 解释；读到模型并行前暂停。这是官方发布的中文版本，指定文字已预读，适合先解释“输入一次，输出逐步产生”。文章的 token 字符数只是英文经验值，tokenizer/chat template 仍按原课核对。[范围与版本](../../resources/serving.md#cn-inference)。
+
 ## 先弄清模型每一步接收什么
 
 token 是 tokenizer 给文本编码后的编号，不等于一个汉字或单词。相同文本使用不同 tokenizer、模板或特殊符号，token 数可能不同。聊天模板把角色和内容组织成模型接收的序列；本单元固定 tokenizer revision 和模板，再核对真实输入长度。

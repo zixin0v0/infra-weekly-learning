@@ -8,6 +8,10 @@
 
 主要阅读下列正文与图解。视频范围待核验；已看懂的重复内容只需回查。
 
+## 中文补充（按需）
+
+Kubernetes 官方中文[调试 Pod](https://kubernetes.io/zh-cn/docs/tasks/debug/debug-application/debug-pods/)的 describe/Events 例子，可以练习根据资源不足、镜像错误寻找下一步证据；指定文字已预读。它补“为什么没有开始执行”的诊断思路，不代替 Ray 的日志或状态。这里只读配置与事件，本课的排队/依赖等待仍按自己的同一轨迹分开记录。[范围与版本](../../resources/scheduling.md#cn-kubernetes)。
+
 ## 开始前
 
 先通过同一轨迹的仿真检查，继续复用 W15 的事件记录；实际接入 Ray 是后续扩展。

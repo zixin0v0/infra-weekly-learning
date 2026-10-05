@@ -6,6 +6,10 @@
 
 先会 Tensor 的创建、dtype 和标量运算即可。主要讲解是本页；看完对应小例子后，读 [Numerical accuracy](https://docs.pytorch.org/docs/2.14/notes/numerical_accuracy.html) 的开头、Batched computations 和 Extremal values，停在 Linear algebra 前。文档例子用于核对机制，不要求先学矩阵分解。[资料卡与接口范围](../../resources/foundations.md#r-numerics) 中保留版本和查询入口，本节不增加一段未经核验的视频。
 
+## 中文补充（按需）
+
+暂未接入同时讲清 FP16/BF16 范围、舍入、累加顺序与容差的已预读外部中文材料。已检查的通用“大模型精度”介绍存在过度概括，不适合据此判断正确性。先用本页数值例子和原英文浮点资料完成练习；[缺项记录](../../docs/audits/2026-10-05-chinese-resources.md#pending)会明确保留这一项。
+
 ## 范围决定能否装下，精度决定能分多细
 
 浮点数（floating point）用符号、指数和有效数字表示数值，可以粗略理解成二进制的科学计数法。指数影响数量级范围；有效数字位数影响同一数量级下能区分的间隔。间隔不是全数轴统一的刻度，越大的数附近通常越稀疏。

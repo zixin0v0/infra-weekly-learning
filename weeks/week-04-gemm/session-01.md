@@ -22,6 +22,10 @@
 
 访问日：2026-10-01；指南页面标 13.4。布局推导使用自己的 shape，不照搬示例硬件。
 
+## 中文补充（按需）
+
+HyperAI 社区译文[矩阵乘法](https://triton.hyper.ai/docs/getting-started/tutorials/matrix-multiplication/)，只看“动机”的分块伪代码和“指针算术”，到 L2 缓存优化前。指定范围已预读；它能帮助你把 C tile、K 循环与 stride 对上，不要求现在学习或运行 Triton。CUDA 下标、非整除边界与原英文 GEMM 范围不变。[范围与版本](../../resources/gpu.md#cn-triton)。
+
 ## 行长度决定地址公式
 
 连续按行保存的矩阵，每跳过一整行就要前进“列数”个元素。A 有 K 列，所以 A[row,inner] 的下标是 row×K+inner；B 有 N 列，所以 B[inner,col] 的下标是 inner×N+col。K 和 N 即使在方阵例子里相等，也不能在代码里混用。

@@ -35,6 +35,25 @@
 
 使用官网当前链接的 2022 录制版。课页给概念暂停点；尚未核验的分钟位置不填写。入口、正文预读与画面检查的详细边界见 [2026-10-04 核验记录](../docs/audits/2026-10-04-video.md)。
 
+## 中文视频与图文怎样搭配
+
+中文补充放在每课原英文材料旁，想换一种解释或卡住时再用。原英文链接、指定范围与实验要求保留；同一概念看懂后直接回练习，不把中英文重复阅读再算一遍时间。中文资料帮助理解，接口与运行版本仍回查原来源。
+
+| 当前需要 | 中文视频入口 | 可独立阅读的正文与边界 |
+| --- | --- | --- |
+| shape、广播、索引 | 李沐 2021 [数据操作](https://www.bilibili.com/video/BV1CV411Y7i4) | [CN-Tensor](foundations.md#cn-tensor)：§2.1.1～2.1.5，不覆盖 stride/共享存储 |
+| 梯度与更新 | 李沐 2021 [自动求导](https://www.bilibili.com/video/BV1KA411N7Px) | [CN-Autograd](foundations.md#cn-autograd)：§2.5.1、§2.5.3 |
+| 一个完整训练循环 | 李沐 2021 [线性回归·从零实现 P3](https://www.bilibili.com/video/BV1PX4y1g7KC?p=3) | [CN-Train](foundations.md#cn-training)：§3.2.2～3.2.7，留意 loss 分母 |
+| 参数读回 | 李沐 2021 [读写文件 P4](https://www.bilibili.com/video/BV1AK4y1P7vs?p=4) | [CN-Save](foundations.md#cn-save)：§5.5.1～5.5.2，不等于完整恢复 |
+| CPU/GPU 与互连 | 李沐 2021 [硬件](https://www.bilibili.com/video/BV1TU4y1j7Wd/) | [CN-Hardware](gpu.md#cn-hardware)：组件与连接关系，不套用旧设备规格 |
+| 第一个 CUDA 程序 | coderonion [第 3 集](https://www.bilibili.com/video/BV1oc411x7Gt/) / [第 4 集](https://www.bilibili.com/video/BV1jueweLEQ1/) | [CN-CUDA](gpu.md#cn-cuda)：CUDA 12.x 入门，录制年份未确认 |
+| Attention 与 mask | 李沐 2021 [注意力分数](https://www.bilibili.com/video/BV1Tb4y167rb/) | [CN-Attention](models.md#cn-attention)：§10.3.1、§10.3.3 与多头公式 |
+| 每卡数据与梯度 | 李沐 2021 [多 GPU 训练](https://www.bilibili.com/video/BV1vU4y1V7rd/) | [CN-DP](training.md#cn-data-parallel)：数据并行步骤与小函数，不替代 DDP |
+
+上表为中文讲解视频，讲次/分集链接已从[李沐作者课表](https://c.d2l.ai/zh-v2/)及 [CUDA 作者仓库](https://github.com/coderonion/cuda-beginner-course-cpp-version)确认；本次 B 站直接读取受限，**字幕、画面和分钟范围均未检查**。可先用已预读的指定中文正文继续，不依赖视频播放完成练习。
+
+Python 用[廖雪峰与官方中文](foundations.md#cn-python)，Shell 用[Missing Semester 社区译文](foundations.md#cn-shell)；Triton、推理、持久化和调度的中文博客/教程分别登记在下面的主题文件。尚无合适视频的主题不拼入未经确认的大合集；[逐项对应与缺项](../docs/audits/2026-10-05-chinese-resources.md#source-coverage)保留检查范围。
+
 ## 按主题回查
 
 - [编程、数学、工具与 PyTorch](foundations.md)

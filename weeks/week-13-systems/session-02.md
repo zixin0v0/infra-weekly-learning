@@ -22,6 +22,10 @@
 
 本段只比较已有表达式和 Block；区域编译属于后续选读。
 
+## 中文补充（按需）
+
+中文[内核融合例子](https://developer.nvidia.cn/blog/kernel-fusion-in-nvidia-cuda-optimizing-memory-traffic-and-launch-overhead/)只在还不理解“融合为什么减少中间读写”时回看“隐式内核融合”的 sum/abs 段；它是 NVIDIA 发布的中文版本。**首次编译、稳态、缓存命中和回本次数暂缺合适的已预读中文对应**，不能用文章加速比回答本课成本题，继续用这里的累计时间计算。[范围与版本](../../resources/models.md#cn-compile)。
+
 ## 用累计时间比较，而不是只看一次调用
 
 设首次多花 ΔF，后续每次节省 Δt，总共调用 N 次，则额外时间为 ΔF−(N−1)Δt。减 1 是因为首次调用已经单独计过，不能再次算成普通稳态调用。

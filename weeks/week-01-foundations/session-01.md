@@ -24,6 +24,10 @@
 | B. 地址 | CS106L 第 6 讲，第 70～85 页；第 78 页先暂停，读完第 85 页 `Array pointer` 结束 | 值、地址、指针对象是不同对象；指针移动按元素计 | 一幅数组地址图与一条指针移动预测 | 20 分钟 |
 | C. Tensor | 固定版本讲义的 `tensors_basics` 与 `tensors_memory` 中 FP32/FP16 小例子；到 `## bf16` 前结束 | 元素数乘以单元素字节数 | 两种 dtype 的字节预测与计数范围 | 15 分钟 |
 
+## 中文补充（按需）
+
+Microsoft Learn 中文[原始指针](https://learn.microsoft.com/zh-cn/cpp/cpp/raw-pointers?view=msvc-170)开头的 `int* p`、取地址/解引用，以及[数组](https://learn.microsoft.com/zh-cn/cpp/cpp/arrays-cpp?view=msvc-170)“堆栈声明”的初始化和索引例子，可辅助画地址图；停在零大小数组讨论前。这是官方中文文档，指定段落已预读；未初始化元素不能当随机数读取。类型转换与指针宽度仍按原课核对。[范围与版本](../../resources/foundations.md#cn-cpp)。
+
 ## A. 类型：先判断表达式，再看接收它的变量
 
 打开 [CS106L 第 2 讲 PDF](../../resources/foundations.md#r-cpp)。页码均为阅读器从 1 开始的页序。

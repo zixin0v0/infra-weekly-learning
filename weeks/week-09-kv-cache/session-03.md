@@ -10,6 +10,10 @@
 
 先回看[共享前缀的块表图](session-02.md)：两个请求是否真能指向同一物理块，取决于前缀等复用条件是否满足。这里用冷、热两组请求检查实际发生了什么。
 
+## 中文补充（按需）
+
+中文[推理优化](https://developer.nvidia.cn/blog/mastering-llm-techniques-inference-optimization/)中的分页只在需要回想块分配动机时选读；它不覆盖当前 vLLM APC 的接口、缓存键或命中指标。与本课版本一致、已预读的 APC 中文教程暂缺，冷/热对照和 token 前缀检查仍按原英文资料及本页步骤完成。[范围与版本](../../resources/serving.md#cn-serving-gaps)。
+
 ## 开始前
 
 先能解释上一段的共享条件；复用 W8 同一服务与模型配置，不同时更换模型或负载。

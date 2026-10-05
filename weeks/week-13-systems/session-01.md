@@ -24,6 +24,10 @@
 
 访问日：2026-10-01。教程环境显示 2.14.0+cu130，实际环境另记录。
 
+## 中文补充（按需）
+
+NVIDIA / Daniel Rodriguez 中文[CUDA 内核融合](https://developer.nvidia.cn/blog/kernel-fusion-in-nvidia-cuda-optimizing-memory-traffic-and-launch-overhead/)，只读“隐式内核融合”中 sum/abs、`torch.compile` 和生成的两个 kernel 例子，跳过 CUDA 13.2 C++ 段及性能表。该段已预读，适合把表达式与实际 kernel 数量联系起来；一次 compile 不保证只产生一个 kernel，原课 graph 与正确性要求不变。[范围与版本](../../resources/models.md#cn-compile)。
+
 ## 表达式描述计算，图描述依赖，kernel 执行工作
 
 `relu(X @ W + bias)` 包含矩阵乘法、加法与激活。计算图记录它们之间的数据依赖，后端再选择怎样生成执行代码；有些操作可能融合，有些仍独立。不能从 Python 行数推断 kernel 数，也不能从 kernel 数变少直接推出整个 Block 变快。

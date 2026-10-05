@@ -8,6 +8,10 @@
 
 主要阅读下列正文与图解。视频范围待核验；已看懂的重复内容只需回查。
 
+## 中文补充（按需）
+
+NVIDIA 中文[推理优化](https://developer.nvidia.cn/blog/mastering-llm-techniques-inference-optimization/)只读“动态批处理”，理解一个请求结束后，为什么可以在生成过程中加入另一个请求；指定文字已预读。文中该段讲 continuous/in-flight batching，不应泛化为所有“动态批处理”。chunked prefill 切开的是输入处理，这篇未充分覆盖，仍按原课区分两种动作。[范围与版本](../../resources/serving.md#cn-inference)。
+
 ## 开始前
 
 先区分计划与实际负载，再回看 [W8 的 prefill/decode 形状](../week-08-serving-baseline/session-01.md)。

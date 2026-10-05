@@ -8,6 +8,10 @@
 
 主要阅读下列正文与图解。视频范围待核验；已看懂的重复内容只需回查。
 
+## 中文补充（按需）
+
+小林 x 中文原创[进程调度算法](https://xiaolincoding.com/os/5_schedule/schedule.html)，只看先来先服务 FCFS 与最短作业优先 SJF，停在高响应比优先前。限定文字已预读，适合先画等待与执行区间。回本课使用同一任务轨迹；平均等待下降不保证 makespan 或吞吐提高，不能预知真实运行时长。[范围与版本](../../resources/scheduling.md#cn-scheduling)。
+
 ## 开始前
 
 先能从 W15 日志计算等待与执行时长；统计规则回 M4，Kubernetes 配置关系回 [S6](../../course/bridges/s06.md)。

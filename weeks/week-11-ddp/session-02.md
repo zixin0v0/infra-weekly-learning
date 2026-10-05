@@ -8,6 +8,10 @@ DDP 同步之后，各模型副本应按相同梯度更新。但“先在本地�
 
 主要阅读下列正文与图解。视频范围待核验；已看懂的重复内容只需回查。
 
+## 中文补充（按需）
+
+回看《动手学深度学习》中文[§12.5.4](https://zh.d2l.ai/chapter_computational-performance/multiple-gpus.html)的 PyTorch `allreduce` 小函数，可追踪求和后各卡拿到什么；只看函数与紧接的两卡输出。指定代码已预读，它做的是 SUM，不自动等于 DDP 的梯度平均。样本数、loss reduction 和全局分母仍按本页推导，不复制为分布式训练实现。[范围与版本](../../resources/training.md#cn-data-parallel)。
+
 ## 开始前
 
 上一段已核对样本 ID 和初始化；链式法则不熟时回 [M3 与单卡训练 D](../../course/prerequisites.md)。

@@ -8,6 +8,10 @@
 
 主要阅读下列正文与图解。视频范围待核验；已看懂的重复内容只需回查。
 
+## 中文补充（按需）
+
+状态分类还混淆时，回看 Datawhale [ZeRO 三阶段](https://datawhalechina.github.io/diy-llm/chapter8/chapter8_第八章分布式训练.html)的同一小段：§8.2.1 颜色说明至第三阶段结束，“第一步”操作前停止。它只补“分片哪些状态”，不代替完整参数何时聚合的时间线；fully_shard、DTensor 与 reshard 行为仍查原课 FSDP2。[范围与版本](../../resources/training.md#cn-sharding)。
+
 ## 开始前
 
 先完成上一段状态账本，继续使用 W11 的模型、global batch、精度与优化器。

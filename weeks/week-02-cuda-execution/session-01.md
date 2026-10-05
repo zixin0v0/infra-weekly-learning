@@ -22,6 +22,12 @@ CPU 循环依次处理数组元素；CUDA kernel 则让许多线程各自计算�
 | 20 分钟 | [Programming Model §1.2](../../resources/gpu.md#r-cuda) 与 [Writing SIMT Kernels §2.3.2](../../resources/gpu.md#r-cuda) | 执行层级和 Thread Hierarchy 结束 |
 | 20 分钟 | [Intro to CUDA C++ §2.1.2](../../resources/gpu.md#r-cuda) | 启动语法、下标与尾部保护；后续内存管理留到下一段 |
 
+## 中文补充（按需）
+
+中文视频可选 coderonion《CUDA 12.x 入门》[第 3 集：运行第一个 CUDA 程序](https://www.bilibili.com/video/BV1oc411x7Gt/)与[第 4 集：你好，CUDA](https://www.bilibili.com/video/BV1jueweLEQ1/)。作者仓库确认了入口，字幕/画面未检查；它们只作入门补充。
+
+文字用谭升[组织并行线程](https://face2ai.com/CUDA-F-2-3-组织并行线程/)中 ix/iy 与行优先下标的解释，跳过后续完整 kernel 和性能表。这是中文原创博客，指定文字已预读；先从二维索引回到本课一维覆盖，SM/warp 与 occupancy 仍查原英文。[范围与版本](../../resources/gpu.md#cn-cuda)。
+
 ## 线程运行在哪里，数据又放在哪里？
 
 **流式多处理器（Streaming Multiprocessor，SM）**是 GPU 内部执行线程的硬件单元。grid、block、thread 是程序组织工作的方法；SM、寄存器和缓存是实际资源。一个普通 block 被安排到一个 SM，多个 block 可以同时驻留；资源用完后，其余 block 等已有工作结束。不能把“启动了 1000 个 block”理解为“有 1000 个 SM 同时执行”。

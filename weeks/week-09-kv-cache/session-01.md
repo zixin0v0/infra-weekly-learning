@@ -10,6 +10,10 @@
 
 视频分钟位置待核验；下列章节或函数用于正文定位，也可以直接按正文完成练习。
 
+## 中文补充（按需）
+
+NVIDIA 中文[推理优化](https://developer.nvidia.cn/blog/mastering-llm-techniques-inference-optimization/)看 KV cache 与“LLM 内存要求”的说明，把层数、序列长度和缓存元素联系起来；指定文字已预读。文章偏标准多头注意力，GQA/MQA 要按本课实际 KV head 数计算，不能机械用 query head 数。它补概念，不替代本页容量账本。[范围与版本](../../resources/serving.md#cn-inference)。
+
 ## 开始前
 
 完成 W8 的 token 与 KV 解释，能用 W1 的元素数乘字节数计量；query heads 与 KV heads 必须分清。

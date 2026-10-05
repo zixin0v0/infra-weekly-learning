@@ -22,6 +22,10 @@
 
 阅读错误检查小节时，分别找出启动后与执行完成点需要检查的内容。
 
+## 中文补充（按需）
+
+NVIDIA / Mark Harris 中文[CUDA 入门更新版](https://developer.nvidia.cn/blog/even-easier-introduction-cuda-2/)只看“CUDA 中的显存分配”中完整三参数 `add` 程序：先找分配，再找 kernel 和同步，最后找释放。该段已预读；局部片段混有 `sum` 四参数版本，不要拼接。它用统一内存说明 host/device 关系，不能替代本课显式 H2D/D2H，也不改变错误检查要求。[范围与版本](../../resources/gpu.md#cn-cuda)。
+
 ## 每个数据区域，都要找到它的最后一次使用
 
 CPU 准备输入后，把它复制到设备，称为 host-to-device（H2D）；设备计算完成，再用 device-to-host（D2H）把结果带回。同步解决“什么时候完成”，拷贝解决“结果在哪里”，二者不能互相替代。

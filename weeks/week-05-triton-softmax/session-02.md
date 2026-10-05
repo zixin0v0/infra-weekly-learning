@@ -24,6 +24,10 @@
 
 访问日：2026-10-01；[对应源码快照](../../resources/gpu.md#r-softmax)。本节要求一行的数据适合 kernel 的资源约束，不能宣称任意宽度支持。
 
+## 中文补充（按需）
+
+HyperAI 中文[融合 Softmax](https://triton.hyper.ai/docs/getting-started/tutorials/fused-softmax/)读“动机”和 `softmax_kernel`，到辅助启动函数前；适合对照减最大值、mask 与中间读写。社区译文的指定正文已预读。“MN 字节”应按 MN 个元素乘元素宽度计算；`num_warps` 是 warp 数，不是 block 数。旧 JIT 比较与私有启动接口跳过。[范围与版本](../../resources/gpu.md#cn-triton)。
+
 ## 一次共同平移，不改变归一化比例
 
 把一行所有数都减去同一个最大值，相当于分子和分母同时除以这个最大值的指数，因此实数意义下概率不变。最大的指数变为 1，其余不超过 1，就避免了先产生巨大指数再相除的问题。

@@ -10,6 +10,10 @@ DDP 在每张卡上保留完整训练状态；分片把其中一些长期状态�
 
 主要阅读下列正文与图解。视频范围待核验；已看懂的重复内容只需回查。
 
+## 中文补充（按需）
+
+Datawhale 中文社区讲义[DIY-LLM 第八章](https://datawhalechina.github.io/diy-llm/chapter8/chapter8_第八章分布式训练.html)，只读 §8.2.1“ZeRO 解决 DP 的内存开销问题”下的颜色说明与三个阶段，到 120→31.4→16.6→1.9 GB 的解释结束，停在“第一步”前。限定文字已预读；用它区分 optimizer、gradient、parameter，数字依赖特定假设。它不是本仓库 CS336 2026 的逐段译文，也不提供 FSDP2 API 依据。[范围与版本](../../resources/training.md#cn-sharding)。
+
 ## 开始前
 
 完成 W11 的状态 dtype 表与一次更新核对，能解释 AllGather 和 ReduceScatter；先做 [S5 持久化](../../course/bridges/s05.md)。

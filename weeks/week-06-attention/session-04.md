@@ -6,6 +6,10 @@
 
 主要阅读本页和 [PyTorch CUDA semantics 的 Memory management](https://docs.pytorch.org/docs/2.14/notes/cuda.html#memory-management) 开头两段，停在高级分配器配置之前。接口范围见 [显存资料卡](../../resources/models.md#r-memory-lifetime)。没有 GPU 时先完成对象与状态表，真实显存曲线留待运行；CPU 字节统计不代替 CUDA 指标。
 
+## 中文补充（按需）
+
+李沐中文[自动求导](https://www.bilibili.com/video/BV1KA411N7Px)及作者[§2.5.3 分离计算](https://zh.d2l.ai/chapter_preliminaries/autograd.html)可回看 detach 怎样截断求导路径。正文已预读，视频仅讲次确认。它没有说明 allocated/reserved/peak，也没有保证 detach 复制存储；对象引用与峰值检查仍按本页完成。[范围与版本](../../resources/models.md#cn-memory)。
+
 ## 对象的寿命，并不都在函数返回时结束
 
 参数在训练期间一直存在。前向为反向保留必要的中间结果，反向计算参数梯度；通常 backward 会释放已用完的中间保存值，但参数的 `.grad` 还在。SGD 无动量时状态少，Adam 通常到第一次 step 才建立动量统计。变量、列表、闭包或视图仍引用一个 Tensor 时，它的存储可能继续存活。

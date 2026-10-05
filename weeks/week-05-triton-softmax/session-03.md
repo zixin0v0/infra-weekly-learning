@@ -22,6 +22,10 @@
 
 访问日：2026-10-01。页码指阅读器页序，固定 v2；纸面数字不是运行结果。
 
+## 中文补充（按需）
+
+Bowen Zhou 2024 中文原创[图解 FlashAttention](https://bowenzhou.top/posts/2024/illustrated-flash-attention)只看“Softmax Tiling”的分块 max/sum 公式，先不进入 Attention。指定文字和公式已预读，网页动画未检查。前面的口头“乘以旧 sum”省略了最大值变化后的指数重缩放；以完整公式及本页数值推演为准。[范围与版本](../../resources/models.md#cn-flash)。
+
 ## 旧指数和需要换到新基准
 
 一块数据保存最大值 `m`，以及 `l = sum(exp(value−m))`。假设第一块 [2,3] 使用 m=3，读到新值 4 后最大值变成 4。旧的每个指数应从 exp(value−3) 变成 exp(value−4)，也就是共同乘 exp(3−4)。新值自己再贡献 exp(4−4)=1。

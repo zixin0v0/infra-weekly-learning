@@ -22,6 +22,10 @@ W5 说明了分块后如何维护分母。Attention 还要把每块概率对应�
 
 访问日：2026-10-01；v2 提交于 2022-06-23，表示原论文的修订版本，不是 FlashAttention-2。论文 HBM/SRAM 是分析层次，本机消费级显存介质不同，不照搬带宽数字。
 
+## 中文补充（按需）
+
+Bowen Zhou 中文原创[图解 FlashAttention](https://bowenzhou.top/posts/2024/illustrated-flash-attention)，读“Softmax Tiling”及其用于 FlashAttention 的状态更新公式，到完整输出合并为止。指定文字/公式已预读，动画未检查；用本课图追踪 Q/K/V。原文口头省略的指数重缩放不能省，复杂度段的 d 名称也不作为本课维度定义。它补机制直觉，不替代 SDPA 正确性与 IO 实验。[范围与版本](../../resources/models.md#cn-flash)。
+
 ## 省去中间写回，仍然要完成相同的加权计算
 
 显式实现先保存 S×S 分数，再保存概率，最后乘 Value。分块实现把一部分 Q/K/V 放到更近的存储中，逐块更新最大值、分母与输出累加状态。共同最大值变化时，旧的加权输出也需要相应重缩放；只有分母状态，无法知道每个 Value 的贡献。

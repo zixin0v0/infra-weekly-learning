@@ -8,6 +8,10 @@
 
 主要阅读下列正文与图解。视频范围待核验；已看懂的重复内容只需回查。
 
+## 中文补充（按需）
+
+MDN 中文[HTTP 概述](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Guides/Overview)只看系统组成、HTTP 流与请求/响应消息，用本课请求逐项找 method、路径、状态码和 body。它是官方站社区译文，指定正文已预读；不包含 vLLM 当前启动参数、ready 语义或流式 token 事件。卡在容器端口时回 S3，不另学一套服务框架。[范围与版本](../../resources/serving.md#cn-http)。
+
 ## 开始前
 
 上一段能区分 token 与字符，并能画 TTFT/TPOT 时间线；HTTP 或容器还不熟时，先做 [S2](../../course/bridges/s02.md) 与 [S3](../../course/bridges/s03.md)。

@@ -10,6 +10,10 @@
 
 回看[排队与服务的示意图](session-01.md)，为两个区段分别寻找可观测事件。客户端只看到总延迟时，需要服务端记录才能继续区分等待与执行。
 
+## 中文补充（按需）
+
+NVIDIA 中文[模型性能测量](https://developer.nvidia.cn/blog/measuring-generative-ai-model-performance-using-nvidia-genai-perf-and-an-openai-compatible-api/)开头的 TTFT、token 吞吐和 ITL 定义可用于回查分母，停在“介绍 GenAI-Perf”前；指定文字已预读。它没有给本课 goodput 的 SLO 过滤规则，也不替代日志/指标/trace 的时窗对齐。先解释失败与超时怎样计入，再按本页重算。[范围与版本](../../resources/serving.md#cn-metrics)。
+
 ## 开始前
 
 先保留上一段的默认与改动配置两组记录，能从明细计算 TTFT/TPOT；统计定义回 [M4](../../course/prerequisites.md)。

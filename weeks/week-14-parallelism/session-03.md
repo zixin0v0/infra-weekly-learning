@@ -8,6 +8,10 @@
 
 可从 [CS336 2026 Lecture 7 官方课表](https://cs336.stanford.edu/) 的 Recordings 打开 Parallelism，看到 PP 时暂停画微批次时间线。视频分钟位置待核验；正文按下列函数和章节阅读。
 
+## 中文补充（按需）
+
+NVIDIA 中文[推理优化](https://developer.nvidia.cn/blog/mastering-llm-techniques-inference-optimization/)只读“管道并行”段：按层拆设备、等待与微批次，停在“张量并行度”前；指定文字已预读。它帮助理解流水线气泡；本课仍只画 2 stage 前向时间线，完整训练调度留作后续。微批次依赖与空闲区间按本页推演，不用旧文章的泛化效率公式代替时间线。[范围与版本](../../resources/training.md#cn-parallel)。
+
 ## 开始前
 
 先区分 TP 在层内切分、PP 在阶段间传激活；本段只手算前向依赖，训练流水线另有反向与更新。

@@ -18,6 +18,10 @@
 | 20 分钟 | 同一页面 | `transpose` 导致不连续的例子；画出访问顺序后暂停 |
 | 15 分钟 | 同一页面 | 末尾 `reshape`、`flatten`、`contiguous` 的说明；读完三者约定即停 |
 
+## 中文补充（按需）
+
+李沐 2021 中文视频[数据操作](https://www.bilibili.com/video/BV1CV411Y7i4)与作者团队[§2.1.1～2.1.5](https://zh.d2l.ai/chapter_preliminaries/ndarray.html)（PyTorch），适合在 shape、广播、索引不熟时回看；看到 reshape 先预测输出。正文已预读，视频讲次已确认，字幕/画面未检查。它不是 Tensor Views 译文；`id(tensor)` 不是存储指针，stride、共享与复制仍完成原实验。[范围与版本](../../resources/foundations.md#cn-tensor)。
+
 ## 用索引找到真正的元素
 
 Tensor 的**形状（shape）**描述有几个维度、每一维多长；**步长（stride）**描述某一维索引增加 1 时，底层位置前进多少个元素。**底层存储（storage）**才是这些元素所在的数据区域。Tensor 对象还保存从哪里开始读，即 `storage_offset`。

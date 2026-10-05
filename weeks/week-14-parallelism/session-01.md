@@ -10,6 +10,10 @@
 
 视频分钟位置待核验；下列章节或函数用于正文定位，也可以直接按正文完成练习。
 
+## 中文补充（按需）
+
+Datawhale 中文[DIY-LLM 第八章](https://datawhalechina.github.io/diy-llm/chapter8/chapter8_第八章分布式训练.html)的 §8.2.2“张量并行”，从 `Y=GeLU(XA)` 两层 MLP 例子读到 f/g 前向与反向同步点，之后的通信量、性能百分比和经验卡数跳过。限定文字已预读，适合对照 A/B 的切分；文章省略 bias，本课仍要单独处理。[范围与版本](../../resources/training.md#cn-parallel)。
+
 ## 开始前
 
 先会 W4 矩阵乘法与 W7 通信；按顺序完成 W12。纸面与 CPU 代数验证无需额外 GPU。

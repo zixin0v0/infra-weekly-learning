@@ -8,6 +8,10 @@
 
 主要阅读下列正文与图解。视频范围待核验；已看懂的重复内容只需回查。
 
+## 中文补充（按需）
+
+小林 x 中文[调度算法](https://xiaolincoding.com/os/5_schedule/schedule.html)的 FCFS/SJF 段可回查顺序与长任务等待；指定文字已预读。操作系统例子帮助理解策略，但本课用估计时长，不能把未来真实耗时交给调度器。容器放不下时，可另回 Kubernetes 官方中文[带资源请求的 Pod 如何调度](https://kubernetes.io/zh-cn/docs/concepts/configuration/manage-resources-containers/)这一小节，区分资源可行性与优先级。[范围与版本](../../resources/scheduling.md#cn-scheduling)。
+
 ## 开始前
 
 先手算第一段的等待与周转，再给每个任务分别保留 estimated_duration 与 actual_duration。

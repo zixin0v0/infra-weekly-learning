@@ -8,6 +8,10 @@
 
 主要阅读下列正文与图解。视频范围待核验；已看懂的重复内容只需回查。
 
+## 中文补充（按需）
+
+AWS 官方中文[采用退避的重试](https://docs.aws.amazon.com/zh_cn/prescriptive-guidance/latest/cloud-design-patterns/retry-backoff.html)，只读意图、动机、适用性和“问题和注意事项”，到实现前停止。它是现有英文重试材料的官方译文，指定文字已预读；重点检查幂等性、限次与退避，不套用 Lambda/Step Functions 实现。Ray 的 max_retries、Actor 状态及异常传播仍按本页和原接口核对。[范围与版本](../../resources/scheduling.md#cn-retry)。
+
 ## 开始前
 
 前两段结果正确，能说明逻辑资源与实际占用；继续使用同一单机时钟与明确任务 ID。

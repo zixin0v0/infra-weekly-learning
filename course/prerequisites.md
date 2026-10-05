@@ -58,6 +58,8 @@
 
 ## B. C++ 与 Tensor：先会编写，再研究布局
 
+**中文补充（按需）：** 地址不直观时看 Microsoft Learn 中文[原始指针](https://learn.microsoft.com/zh-cn/cpp/cpp/raw-pointers?view=msvc-170)开头的取地址/解引用小例子；shape 和广播不熟时看李沐 2021[数据操作视频](https://www.bilibili.com/video/BV1CV411Y7i4)及作者[数据操作 §2.1.1～2.1.5](https://zh.d2l.ai/chapter_preliminaries/ndarray.html)（PyTorch）。指定文字已预读，视频仅作者课表入口确认；字幕/画面未检查。它们分别是官方中文与同主题中文讲解；[C++ 范围](../resources/foundations.md#cn-cpp)、[Tensor 范围](../resources/foundations.md#cn-tensor)列出未覆盖的类型、寿命与存储语义，原英文补学仍保留。
+
 **C++ 补学**：[P-CPP](../resources/foundations.md#p-cpp) 依次读程序结构、变量、条件/循环、函数，再读指针和 `std::array`。先理解 `main` 是入口、编译把源文件变成可执行程序。已会 Python 但没写过 C++，安排 6～10 小时；CS106L 的少量幻灯片只适合之后巩固，不能承担从零入门。
 
 在已配置的 Linux/WSL 编译器中，自己创建 `array_sum.cpp`，用 `std::array<float, 4>` 存 `{1, 2, 3, 4}`，用循环求和，函数返回结果。用 `g++ -std=c++17 array_sum.cpp -o array_sum` 编译，再运行 `./array_sum`。Windows 可沿用 W1 已记录的编译器配置。编译错误从第一条看起，不额外引入 CMake。

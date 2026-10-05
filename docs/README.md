@@ -9,6 +9,7 @@
 - [2026-10-04 视频核验](audits/2026-10-04-video.md)：实际检查内容和未确认边界。
 - [图文检查](audits/2026-10-04-language-figures.md)：当前页面的改写范围、导出检查与剩余限制。
 - [知识补充核验](audits/2026-10-04-knowledge.md)：训练、数值、硬件、显存、重试与方案选择的材料和检查。
+- [2026-10-05 中文补充核验](audits/2026-10-05-chinese-resources.md)：外部视频、博客、教程的指定范围，原资源逐项对应与缺项。
 - [历史资料预读](audits/2026-10-03-sources.md)：既有文字材料的预读证据。
 
 docs 根目录只保留本页、design、maintenance、coverage。日期记录放 audits，过时安排放 archive。

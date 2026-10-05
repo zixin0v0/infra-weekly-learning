@@ -8,6 +8,10 @@
 
 主要阅读下列正文与图解。视频范围待核验；已看懂的重复内容只需回查。
 
+## 中文补充（按需）
+
+NVIDIA 中文[推理优化](https://developer.nvidia.cn/blog/mastering-llm-techniques-inference-optimization/)的分页注意力段，说明为什么 KV 的逻辑序列不必占连续物理空间。指定文字已预读；块表、引用计数与写时复制细节没有完整覆盖。读懂动机就回本页逐块推演，不能用“分页已开启”代替共享正确性检查。[范围与版本](../../resources/serving.md#cn-inference)。
+
 ## 开始前
 
 先算过上一段的有效 KV 与块容量；共享与复制的区别可回看 [W1](../week-01-foundations/session-02.md)。

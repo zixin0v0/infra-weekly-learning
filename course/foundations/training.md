@@ -6,6 +6,12 @@
 
 开始前完成 [P8](p08.md)、[Tensor 与 M3 导数诊断](../prerequisites.md)。前四节在 W6 前完成，预计 5～8 小时；最后的恢复练习在 W11 前完成，预计 2～4 小时。这两段分别记时，S4 的数据管线练习另计。
 
+## 中文补充（按需）
+
+李沐 2021 中文课程的[自动求导](https://www.bilibili.com/video/BV1KA411N7Px)和[线性回归·从零实现 P3](https://www.bilibili.com/video/BV1PX4y1g7KC?p=3)，适合先把反传与参数更新分开理解。正文读作者团队[§2.5.1、§2.5.3](https://zh.d2l.ai/chapter_preliminaries/autograd.html)与[§3.2.2～3.2.7](https://zh.d2l.ai/chapter_linear-networks/linear-regression-scratch.html)的 PyTorch 版本。它们是同主题中文讲解，不是 PyTorch 视频译文；正文已预读，视频分集由作者课表确认，字幕/画面未检查。
+
+书中先对 loss 求和、更新时再除以 batch size；本课若已取平均，不再除一次。进入恢复练习时，可看[读写文件 P4](https://www.bilibili.com/video/BV1AK4y1P7vs?p=4)及[§5.5.1～5.5.2](https://zh.d2l.ai/chapter_deep-learning-computation/read-write.html)，但它只演示参数重载，不能代替 optimizer、随机状态与下一批数据的恢复检查。[范围与版本](../../resources/foundations.md#cn-training)；[保存边界](../../resources/foundations.md#cn-save)。
+
 ## 先看训练做了哪些事
 
 视频入口是 PyTorch 官方 [The Fundamentals of Autograd](https://docs.pytorch.org/tutorials/beginner/introyt/autogradyt_tutorial.html) 的 Simple Example，以及 [Training with PyTorch](https://docs.pytorch.org/tutorials/beginner/introyt/trainingyt.html) 的损失、优化器和训练循环。看到 backward、step 和验证部分时分别暂停，回答“现在改变了什么”。画面与分钟位置待核验；可以直接读下面的小例子，再查 [Quickstart](https://docs.pytorch.org/tutorials/beginner/basics/quickstart_tutorial.html) 的 Optimizing the Model Parameters、Saving Models 和 Loading Models。原文图像分类的数据下载、TensorBoard 和完整模型不要求照搬。

@@ -10,6 +10,10 @@
 
 视频分钟位置待核验；下列章节或函数用于正文定位，也可以直接按正文完成练习。
 
+## 中文补充（按需）
+
+李沐中文[多 GPU 训练](https://www.bilibili.com/video/BV1vU4y1V7rd/)与作者[§12.5.2 数据并行](https://zh.d2l.ai/chapter_computational-performance/multiple-gpus.html)，可先看每卡复制模型、拆分 batch、汇总梯度和更新的顺序。正文已预读，视频仅讲次确认；这是同主题讲解，书中手动分发不是 DDP。rank/LOCAL_RANK 与 DistributedSampler 仍按原课设置，不能把扩大 global batch 的性能做法带入正确性比较。[范围与版本](../../resources/training.md#cn-data-parallel)。
+
 ## 开始前
 
 先完成 [单卡训练 D](../../course/prerequisites.md)、[数据输入 S4](../../course/bridges/s04.md) 和 W7 两卡集合通信；能独立做 forward、backward、step 与恢复。

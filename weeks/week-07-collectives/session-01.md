@@ -23,6 +23,10 @@ AllReduce、AllGather 都带有 All，但它们并不做相同的运算。先用
 
 访问日：2026-10-01；NCCL 文档标 2.32.3，运行版本待选。函数名用于定位讲义正文。
 
+## 中文补充（按需）
+
+李沐中文[多 GPU 训练](https://www.bilibili.com/video/BV1vU4y1V7rd/)可先形成数据分配直觉；正文只看作者[§12.5.4](https://zh.d2l.ai/chapter_computational-performance/multiple-gpus.html)的 PyTorch `allreduce` 函数与两张卡的输入输出。该函数先求和再分发，便于核对每个参与者拿到什么；不是 NCCL 或 DDP 实现。正文已预读，视频仅讲次确认；其余 collective 继续按原文画表。[范围与版本](../../resources/training.md#cn-data-parallel)。
+
 ## 把进程编号与设备编号分开
 
 **rank** 是进程在通信组中的编号。实验可以把一个 rank 绑定到一张 GPU，但换设备映射不会自动改变 rank 顺序。**集合通信（collective）**要求组内各进程按约定共同参与，而不是一个进程单独发起就能完成的普通函数调用。

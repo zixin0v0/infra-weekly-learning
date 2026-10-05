@@ -22,6 +22,10 @@
 
 访问日：2026-10-01。Device API 的新能力在 [资料复核](../../docs/audits/2026-10-01-week-07.md) 中观察，不增加自定义通信 kernel。
 
+## 中文补充（按需）
+
+李沐 2021 中文[硬件：CPU 和 GPU](https://www.bilibili.com/video/BV1TU4y1j7Wd/)及作者[§12.4.6](https://zh.d2l.ai/chapter_computational-performance/hardware.html)，只用来理解 PCIe、网络和 NVLink 连接哪些设备。正文已预读，视频讲次已确认但未检查画面；旧规格不代表本机拓扑。真实路径、错误日志与通信顺序仍按原课观察。[范围与版本](../../resources/gpu.md#cn-hardware)。
+
 ## 逻辑数据流，要经过真实的物理路径
 
 两个 rank 的 AllReduce 语义不随选卡变化，但可用链路、共享瓶颈和软件选择的路径可能变化。下图画两种假设连接，只帮助你知道应去检查什么；当前机器的连接必须用实际 topo 输出确认，P2P 支持还需独立查询。

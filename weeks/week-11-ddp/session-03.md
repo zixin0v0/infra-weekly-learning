@@ -8,6 +8,10 @@
 
 主要阅读下列正文与图解。视频范围待核验；已看懂的重复内容只需回查。
 
+## 中文补充（按需）
+
+如果数据等待还没有直觉，回看李沐团队中文[§3.2.2 读取数据集](https://zh.d2l.ai/chapter_linear-networks/linear-regression-scratch.html)的 `data_iter`；它只解释组 batch，workers/pin_memory 等待仍用 S4 的对照验证。AMP 的 autocast/GradScaler、DDP 通信重叠目前没有与本课范围匹配且已预读的中文补充，继续按原英文和本页状态表检查。[范围与版本](../../resources/training.md#cn-training-gaps)。
+
 ## 开始前
 
 先完成一次参数更新对齐；输入样本和 batch 形状用 [S4](../../course/bridges/s04.md) 的同一数据检查。

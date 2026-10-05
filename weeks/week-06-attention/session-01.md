@@ -22,6 +22,10 @@
 
 访问日：2026-10-01。API 页标 beta；网页 2.14 不代表本机 2.5.1 或目标 GPU 环境版本。
 
+## 中文补充（按需）
+
+李沐 2021 中文[注意力分数](https://www.bilibili.com/video/BV1Tb4y167rb/)与作者团队[§10.3.1、§10.3.3](https://zh.d2l.ai/chapter_attention-mechanisms/attention-scoring-functions.html)（PyTorch），帮助你将 mask、点积、缩放和加权和串起来；多头只补[§10.5 开头的模型公式](https://zh.d2l.ai/chapter_attention-mechanisms/multihead-attention.html)，停在代码前。正文已预读，视频仅讲次确认。书中 valid_lens 与 SDPA 布尔 mask 不是同一接口，causal/dropout 仍按原文核对。[范围与版本](../../resources/models.md#cn-attention)。
+
 ## 先用一个 head 看清三次形状变化
 
 **Query（查询）**与 **Key（键）**做点积，得到“每个位置对每个位置”的分数；按行归一化后，再对 **Value（值）**加权。S 个 query 对 S 个 key 会形成 S×S 分数，最后乘 Value 又回到每个位置一个向量。

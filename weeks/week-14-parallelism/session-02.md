@@ -10,6 +10,10 @@
 
 视频分钟位置待核验；下列章节或函数用于正文定位，也可以直接按正文完成练习。
 
+## 中文补充（按需）
+
+Datawhale 中文[张量并行的两层 MLP](https://datawhalechina.github.io/diy-llm/chapter8/chapter8_第八章分布式训练.html)只回看 §8.2.2 里 f/g 的对偶关系：前向求和在哪里，反向求和又在哪里。限定文字已预读；它没有为本课逐条列出 collective 的 shape，也没有涵盖 bias。把每个同步点重新写入自己的通信表，性能数字不作为完成依据。[范围与版本](../../resources/training.md#cn-parallel)。
+
 ## 开始前
 
 先能解释上一段两层 MLP 的切分；AllReduce 的输出归属回看 [W7](../week-07-collectives/session-01.md)。

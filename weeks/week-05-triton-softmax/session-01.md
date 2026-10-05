@@ -26,6 +26,10 @@ Triton 的表达式看起来像在处理一组向量，但这一组并不等于�
 
 访问日：2026-10-01。网站是 main 浮动文档；[源码快照](../../resources/gpu.md#r-triton) 固定阅读代码，不能拿此开发提交冒充已安装版本。
 
+## 中文补充（按需）
+
+HyperAI 社区译文[向量相加](https://triton.hyper.ai/docs/getting-started/tutorials/vector-addition/)，读 `add_kernel` 与 `add`，到基准测试前；先圈出 program_id、offset 和 mask，再追 grid。指定正文已预读。它对应 Triton 上游教程，但版本未固定到本课 commit；实现仍用原课代码，不能把一个 program 直接当作一个 CUDA thread。[范围与版本](../../resources/gpu.md#cn-triton)。
+
 ## 先理解一块数据，再比较两种编程方式
 
 `arange(0, BLOCK_SIZE)` 产生这一块内的位置，`program_id` 选择当前块。两者相加后的 offsets 决定读写哪些数据；load 和 store 各有自己的边界，保护输出并不能挽救已经发生的越界读取。

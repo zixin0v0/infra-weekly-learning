@@ -10,6 +10,10 @@
 
 将[单请求时间线](session-01.md)扩成多行，每行放一个请求，所有行使用同一统计窗口。窗口内完成的请求数与输出 token 数是两种不同的分子。
 
+## 中文补充（按需）
+
+NVIDIA 中文[用 GenAI-Perf 衡量模型性能](https://developer.nvidia.cn/blog/measuring-generative-ai-model-performance-using-nvidia-genai-perf-and-an-openai-compatible-api/)，只看开头 TTFT、输出 token 吞吐与 ITL 定义，停在“介绍 GenAI-Perf”前。指定正文已预读，用它核对计时起止点；本课不安装新压测工具。按响应块归一化的 ITL 不自动等于整个请求 TPOT，仍按原课保存事件与分母。[范围与版本](../../resources/serving.md#cn-metrics)。
+
 ## 开始前
 
 先有上一段的正常响应，并能解释第一段的三个计时区间；分位数不熟时回 [M4](../../course/prerequisites.md)。
